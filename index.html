@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dhot.</title>
+    <link rel="stylesheet" href="public/style.css">
+    <!-- Include Three.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/loaders/GLTFLoader.js"></script>
+</head>
+
+<body>
+    <!-- Main Container -->
+    <div class="product-page-container">
+        
+        <!-- Left Section: Product Images & 3D Viewer -->
+        <div class="product-images">
+            
+            <!-- 3D Model Viewer Container -->
+            <div class="three-js-container" id="three-js-container" aria-label="3D Model Viewer" style="width: 100%; height: 400px;">
+                <h4>3D Model Viewer</h4>
+                <script type="module" src="src/main.js"></script>
+            </div>
+        </div>
+
+        <!-- Right Section: Product Details -->
+        <div class="product-details">
+            <h1 class="product-title">Dhot Max Table</h1>
+            <p class="product-description">Premium outdoor table perfect for all occasions...</p>
+
+            <!-- Pricing Section -->
+            <div class="pricing-section">
+                <span class="price">$1,299.00</span>
+                <button class="add-to-cart-btn" aria-label="Add to Cart">Add to Cart</button>
+            </div>
+
+            <!-- Options and Configurations -->
+            <div class="product-options">
+                <div class="option">
+                    <label for="color">Color:</label>
+                    <select id="color" name="color" aria-label="Select Color">
+                        <option value="default">Default</option>
+                        <option value="black">Black</option>
+                        <option value="white">White</option>
+                    </select>
+                </div>
+                <div class="option">
+                    <label for="size">Size:</label>
+                    <select id="size" name="size" aria-label="Select Size">
+                        <option value="small">Small</option>
+                        <option value="medium">Medium</option>
+                        <option value="large">Large</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Specifications Section -->
+            <div class="product-specifications">
+                <h2>Specifications</h2>
+                <ul>
+                    <li>Material: Aluminum, Polyethylene</li>
+                    <li>Dimensions: 90cm x 200cm x 75cm</li>
+                    <li>Weight: 35 kg</li>
+                </ul>
+            </div>
+
+            <!-- Reviews Section -->
+            <div class="product-reviews">
+                <h2>Customer Reviews</h2>
+                <div class="review">
+                    <p>"Great quality and stylish design!" - Jane Doe</p>
+                </div>
+                <div class="review">
+                    <p>"Worth every penny." - John Smith</p>
+                </div>
+            </div>
+
+            <!-- Related Products Section -->
+            <div class="related-products">
+                <h2>Related Products</h2>
+                
+            </div>
+        </div>
+    </div>
+
+    <!-- Include the Three.js script after the DOM is fully loaded -->
+    
+</body>
+
+</html>
