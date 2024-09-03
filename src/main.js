@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const gltfLoader = new GLTFLoader();
     gltfLoader.load(
-        '../model.glb',
+        '../public/model.glb',
         (gltf) => {
             object = gltf.scene;
             object.position.set(0, 0, 0);
