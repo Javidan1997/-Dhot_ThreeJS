@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dhot Max</title>
+
+
+    <!-- Include Three.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/loaders/GLTFLoader.js"></script>
+  <script type="module" crossorigin src="assets/index-CCMIiYfO.js"></script>
+  <link rel="stylesheet" crossorigin href="assets/index-BQHuqkEM.css">
+</head>
+
+<body>
+
+    <!-- Main Container -->
+    <div class="product-page-container">
+        
+        <!-- Left Section: Product Image -->
+        <div class="product-images">
+            <!-- 3D Model Viewer -->
+            <div class="three-js-container" id="three-js-container" aria-label="3D Model Viewer" style="width: 100%; height: 400px;">
+
+            </div>
+        </div>
+
+        <!-- Right Section: Product Details -->
+        <div class="product-details">
+            <h1 class="product-title">Dhot Max</h1>
+            <p class="price">$19,280</p>
+
+            <!-- Rating Section -->
+            <div class="rating">
+                <div class="stars">
+                    <span class="star">&#9733;</span>
+                    <span class="star">&#9733;</span>
+                    <span class="star">&#9733;</span>
+                    <span class="star">&#9733;</span>
+                    <span class="star">&#9733;</span>
+                    <span class="reviews">33 Reviews</span>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <p class="product-description">
+                Designed for everyday walking, standing, and mobility. It’s a leap in comfort for all-day wear.
+            </p>
+
+            <!-- Color Options -->
+            <div class="product-options">
+                <h3>Color: Black Charcoal</h3>
+                <div class="color">
+                    <div class="color-btn black" value="black"></div>
+                    <div class="color-btn white" value="white"></div>
+                </div>
+            </div>
+
+            <!-- Size Options -->
+            <div class="product-options">
+                <h3>Sizes</h3>
+                <div class="size-options">
+                    <button class="size-btn">10'x10'</button>
+                    <button class="size-btn">10'x14'</button>
+                    <button class="size-btn">14'x14'</button>
+                    <button class="size-btn active">14'x20'</button>
+                </div>
+                <div class="rotation-container">
+                    <label for="rotationControl" class="rotation-label">Rotate Part:</label>
+                    <input type="range" id="rotationControl" class="rotation-slider" min="0" max="90" value="0">
+                    <span id="rotationValue" class="rotation-value">0°</span>
+                  </div>
+            </div>
+
+            <!-- Add-ons Section -->
+            <!-- Add-ons Section -->
+            <div class="product-options">
+                <h3>Add-ons</h3>
+                <h4>Slides</h4>
+                <img src="glass.png" alt="Slider Glass" class="glass-image">
+                <div class="add-on-buttons">
+                    <button class="side-btn" data-side="front">20' Front</button>
+                    <button class="side-btn" data-side="rear">20' Rear</button>
+                    <button class="side-btn" data-side="left">14' Left</button>
+                    <button class="side-btn" data-side="right">14' Right</button>
+                </div>
+                <div class="glassAnimate-container"></div>
+                    <label for="glassControl" class="glass-label">Glass Slider</label>
+                    <input type="range" id="glassControl" class="glass-slider" min="0" max="100" value="0">
+                    <span id="glassValue" class="glass-value">0%</span>
+                </div>
+                <div id="name-display" style="font-weight: bold; margin-top: 10px;"></div>
+
+                <h4>Zips</h4>
+                <img src="zip.png" alt="Zip" class="zip-image">
+                <div class="zip-buttons">
+                    <button class="zip-btn" data-zip="front">20' Front</button>
+                    <button class="zip-btn" data-zip="rear">20' Rear</button>
+                    <button class="zip-btn" data-zip="left">14' Left</button>
+                    <button class="zip-btn" data-zip="right">14' Right</button>
+                    
+                </div>
+                <div class="zipAnimate-container">
+                    <label for="zipControl" class="zip-label">Zip Slider</label>
+                    <input type="range" id="zipControl" class="zip-slider" min="0" max="100" value="0">
+                    <span id="zipValue" class="zip-value">0%</span>
+                  </div>
+                <!-- Add-ons Section -->
+                <div class="addon-section">
+                    <!-- Lighting Control -->
+                <img src="led.png" alt="Lighting" class="addon-image">                
+                <div class="addon-item">
+                    <div class="addon-details">
+                        <div class="addon-label">LED Lights</div>
+                        <div class="addon-controls">
+                            <button class="addon-control-btn addon-check" data-addon="lighting" data-state="check"></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fan Control -->
+                <img src="fan.png" alt="Fan" class="addon-image">                
+                <div class="addon-item selected">
+                    <div class="addon-details">
+                        <div class="addon-label">Fan</div>
+                        <div class="addon-controls">
+                            <div class="color-selector">
+                                <div class="color-btn black selected"></div>
+                                <div class="color-btn white"></div>
+                            </div>
+                            <button class="addon-control-btn addon-check" data-addon="fan" data-state="check"></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Heater Control -->
+                <img src="heater.png" alt="Heater" class="addon-image">
+                
+                <div class="addon-item">
+                    <div class="addon-details">
+                        <div class="addon-label">Heater</div>
+                        <div class="addon-controls">
+                            <div class="color-selector">
+                                <div class="color-btn black selected"></div>
+                                <div class="color-btn white"></div>
+                            </div>
+                            <button class="addon-control-btn addon-check" data-addon="heater" data-state="check"></button>
+                        </div>
+                    </div>
+                </div>
+                <!-- New Section: Button Group Example -->
+            <h4>
+                    <span class="bold-text">Placement</span>
+                    <a class="italic-text">(optional)</a>
+            </h4>
+            <p>Where do you want pergola placed?</p>
+            <div class="button-grid-section">
+                    <button class="grid-btn">By the pool</button>
+                    <button class="grid-btn">Over patio</button>
+                    <button class="grid-btn">Over deck</button>
+                    <button class="grid-btn active">Rooftop</button>
+            </div>
+
+            
+            <p>Is the pergola freestanding or attached to adjacent structure?</p>
+            <div class="adjacent-grid-section">
+                    <button class="adjacent-btn">Freestanding</button>
+                    <button class="adjacent-btn active">Attached</button>
+            </div>
+
+        <h4>
+            <span class="bold-text">Surface</span>
+            <a class="italic-text">(optional)</a>
+        </h4>
+        <div class="button-grid-section">
+                <button class="grid-btn">Concrete Slab</button>
+                <button class="grid-btn">Composite wood deck</button>
+                <button class="grid-btn">Stone pavers</button>
+                <button class="grid-btn active">Footings required</button>
+        </div>
+
+        <div class="calculator-wrapper">
+            <div class="content" id="calculator-content">
+                <!-- Dynamic content will be inserted here -->
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p class="disclaimer">*Estimated price; final cost confirmed after thorough assessment of all factors.</p>
+        </div>
+        
+        
+        
+
+
+
+
+
+
+            <!-- Add to Cart -->
+            <div class="pricing-section">
+                <button class="add-to-cart-btn" aria-label="Add to Cart">Add To Cart $10,000</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include the Three.js script after the DOM is fully loaded -->
+    
+</body>
+
+</html>
