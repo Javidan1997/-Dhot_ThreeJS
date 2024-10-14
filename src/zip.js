@@ -28,6 +28,32 @@ let scene, gltfLoader;
 let selectedSize; 
 let zipButtonsInitialized = false;
 
+export function removeAllZips() {
+    if (frontZip) {
+        scene.remove(frontZip);
+        frontZip = null;
+    }
+    if (rearZip) {
+        scene.remove(rearZip);
+        rearZip = null;
+    }
+    if (leftZip) {
+        scene.remove(leftZip);
+        leftZip = null;
+    }
+    if (rightZip) {
+        scene.remove(rightZip);
+        rightZip = null;
+    }
+    selectedZips = {
+        front: false,
+        rear: false,
+        left: false,
+        right: false
+    };
+    zipAnimationParts = [];
+}
+
 export function initializeZipModule(_scene, _gltfLoader) {
     scene = _scene;
     gltfLoader = _gltfLoader;
@@ -41,7 +67,7 @@ export function applyMaterialChangeZip(targetObject, selectedColor) {
         if (child.isMesh) {
             if (selectedColor != 'default' && child.name.includes('7e7e7e')) {
                 let newMaterial = new THREE.MeshStandardMaterial({
-                    color: currentColor === 'black' ? 0x2B2B2B : 0xffffff,
+                    color: currentColor === 'black' ? 0x2B2B2B : 0xF1F0EA,
                     metalness: 0.9,
                     roughness: 0.5,
                 });
@@ -54,7 +80,7 @@ export function applyMaterialChangeZip(targetObject, selectedColor) {
 function setDefaultBlackMaterialZip(object) {
     if (object) {
         let defaultMaterial = new THREE.MeshStandardMaterial({
-            color: currentColor === 'black' ? 0x2B2B2B : 0xffffff,
+            color: currentColor === 'black' ? 0x2B2B2B : 0xF1F0EA,
             metalness: 0.9,
             roughness: 0.5,
         });
@@ -150,8 +176,6 @@ export function toggleZip(side, filePath, selectedSize) {
             if (side === 'left') leftZip = newZip;
             if (side === 'right') rightZip = newZip;
 
-            // Apply the same logic to Zip models as sliders
-            selectedZips[side] = true;
             updateZipParts(newZip);
         });
     } else {
@@ -160,7 +184,6 @@ export function toggleZip(side, filePath, selectedSize) {
         if (side === 'rear') rearZip = null;
         if (side === 'left') leftZip = null;
         if (side === 'right') rightZip = null;
-        selectedZips[side] = false;
     }
 }
 
@@ -252,6 +275,8 @@ export function updateSelectedZips(selectedSize) {
 
             if (modelMap[side]) {
                 toggleZip(side, modelMap[side], selectedSize);
+                selectedZips[side] = zipModel ? false : true;
+                updateTotalPrice();
             }
         }
     });
@@ -300,6 +325,8 @@ export function setupZipButtons() {
     
             if (modelMap[side]) {
                 toggleZip(side, modelMap[side], selectedSize);
+                selectedZips[side] = zipModel ? false : true;
+                updateTotalPrice();
             }
         });
     });
@@ -322,15 +349,29 @@ export function setupZipControl(zipControlElement, selectedSize) {
         const sortedParts = zipAnimationParts.slice().sort((a, b) => a.userData.index - b.userData.index);
 
         // Apply movement logic to sorted parts
-        sortedParts.forEach((part) => {
-            // Decrease maxMovement progressively for each part
-            maxMovement -= 6; // Decrease maxMovement by a fixed amount (e.g., 6)
+        // Apply movement logic to sorted parts
+        sortedParts.forEach((part) => {            
+            // Check if the part name includes 'efe4d4'
+            if (part.name.includes('efe4d4')) {                               
+                part.scale.z = 1 - slideAmount; // Gradually shrink to 0 as slideAmount goes from 0 to 1    
+                // Ensure it shrinks from bottom to top
+                if (!part.geometry.boundingBox) {
+                    part.geometry.computeBoundingBox();
+                }
 
-            // Calculate the movement limit based on the current slideAmount
-            const movementLimit = slideAmount * maxMovement;
+                const height = part.geometry.boundingBox.max.z - part.geometry.boundingBox.min.z;
+                const deltaZ = (height * (1 - part.scale.z)); // Adjust factor based on pivot
 
-            // Move the part along the Z-axis uniformly
-            part.position.z = part.userData.initialZ + movementLimit;
+                // Adjust the position.z to keep the bottom fixed during scaling
+                part.position.z = part.userData.initialZ + deltaZ;           
+
+            } else {
+                // Calculate the movement limit based on the current slideAmount
+                const movementLimit = slideAmount * maxMovement;
+
+                // Move the part along the Z-axis uniformly
+                part.position.z = part.userData.initialZ + movementLimit;
+            }
         });
     });
 }
