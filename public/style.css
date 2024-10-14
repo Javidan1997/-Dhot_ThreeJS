@@ -21,7 +21,7 @@ body {
 
 .product-page-container {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 2.5fr 1fr;
     gap: 20px;
     max-width: 1300px;
     margin: 0 auto;
@@ -29,10 +29,11 @@ body {
 }
 
 .product-images {
+    width: 100%;
     position: sticky;
     top: 20px;
-    height: 500px;
-    background-color: var(--color-gray-light);
+    padding-bottom: 20px;
+    height: 600px;
     border-radius: 15px;
     display: flex;
     justify-content: center;
@@ -40,8 +41,17 @@ body {
 }
 
 .three-js-container {
+    position: relative;
     width: 100%;
-    height: 100%;
+    padding-top: 75%; /* 16:9 Aspect Ratio (9/16 * 100) */
+}
+
+.three-js-container canvas {
+    position: absolute;
+    top: 20px;
+    padding-bottom: 50px;
+    padding-top: 20px;
+
 }
 
 .product-details {
@@ -118,7 +128,7 @@ body {
 
 .size-btn {
     padding: 6px 10px;
-    border: 1px solid var(--color-gray);
+    border: 2px solid var(--color-gray);
     background-color: var(--color-white);
     cursor: pointer;
     border-radius: 6px;
@@ -128,8 +138,8 @@ body {
 
 .size-btn.active,
 .size-btn:hover {
-    background-color: var(--color-primary);
-    color: var(--color-white);
+    background-color: var(--color-white);
+    color: var(--color-black);
     border-color: var(--color-primary);
 }
 
@@ -188,7 +198,7 @@ body {
 .side-btn,
 .zip-btn {
     padding: 6px 10px;
-    border: 1px solid var(--color-gray);
+    border: 2px solid var(--color-gray);
     background-color: var(--color-white);
     cursor: pointer;
     border-radius: 6px;
@@ -200,8 +210,8 @@ body {
 .side-btn:hover,
 .zip-btn.active,
 .zip-btn:hover {
-    background-color: var(--color-primary);
-    color: var(--color-white);
+    background-color: var(--color-white);
+    color: var(--color-black);
     border-color: var(--color-primary);
 }
 
@@ -302,7 +312,7 @@ body {
     height: 25px;
     border-radius: 50%;
     cursor: pointer;
-    border: 1px solid var(--color-gray);
+    border: 2px solid var(--color-gray);
 }
 
 .addon-controls .color-btn.selected {
@@ -320,7 +330,7 @@ body {
 .addon-control-btn {
     width: 35px;
     height: 35px;
-    background-color: var(--color-primary);
+    background-color: var(--color-white);
     border: none;
     border-radius: 50%;
     cursor: pointer;
@@ -370,6 +380,239 @@ body {
     background-color: #333333;
 }
 
+/* Button Grid Section */
+.adjacent-grid-section,
+.button-grid-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* Button Styling */
+.adjacent-btn,
+.grid-btn {
+    padding: 10px 10px;
+    border: 2px solid var(--color-gray);
+    background-color: var(--color-white);
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: background-color 0.2s, border-color 0.2s;
+    text-align: center;
+}
+
+/* Hover and Active States */
+.adjacent-btn.active,
+.adjacent-btn:hover,
+.grid-btn:hover,
+.grid-btn.active {
+    background-color: var(--color-white);
+    color: var(--color-black);
+    border-color: var(--color-primary);
+}
+
+/* Specific Styling for the Active Button */
+.adjacent-btn.active,
+.grid-btn.active {
+    border-color: var(--color-primary); /* This will change the border color for the active button */
+}
+.bold-text {
+    font-weight: bold;
+}
+
+.italic-text {
+    font-style: italic;
+    font-weight: normal;
+    margin-left: 2px; /* Adds a small space between "Placement" and "(optional)" */
+}
+
+h4 {
+    margin-bottom: 2px; /* Reduce space between the heading and the paragraph */
+}
+
+p {
+    margin-top: 11px;
+    margin-bottom: 0px;
+}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+.calculator-card {
+    width: 350px;
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    margin: 20px auto;
+    background-color: #F4F4F6;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.card-header .title h2 {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.card-header .optional {
+    font-style: italic;
+    font-weight: normal;
+    color: #666;
+}
+
+.card-header .price h3 {
+    font-size: 22px;
+    font-weight: bold;
+    color: #333;
+}
+
+.content {
+    margin-top: 10px;
+}
+
+.content p {
+    margin-bottom: 10px;
+    line-height: 1.4;
+    color: #333;
+}
+
+ul {
+    list-style-type: none;
+    margin-left: 0;
+    padding-left: 0;
+}
+
+ul li {
+    margin-bottom: 5px;
+}
+
+.footer {
+    margin-top: 20px;
+    text-align: left;
+}
+
+.footer p {
+    font-size: 14px;
+    color: #666;
+}
+
+.footer .disclaimer {
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.add-button {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.add-button:hover {
+    background-color: #555;
+}
+
+/* Custom styles to match your theme */
+.calculator-card img {
+    max-width: 100%;
+    height: auto;
+}
+
+.calculator-content {
+    width: 50px;
+    height: 50px;
+    display: block;
+    margin: 0 auto 10px;
+}
+.calculator-wrapper {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    border-radius: 15px;
+    background-color: #f4f4f4;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+#calculator-content {
+    font-family: 'Arial', sans-serif;
+    color: #333;
+    line-height: 1.6;
+}
+
+#calculator-content p {
+    margin: 0;
+    font-size: 16px;
+}
+
+#calculator-content ul {
+    padding-left: 20px;
+    margin: 10px 0;
+    list-style-type: none;
+}
+
+#calculator-content ul li {
+    margin-bottom: 5px;
+}
+
+strong {
+    font-weight: bold;
+}
+
+.calculator-wrapper .total-price {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: right;
+    margin-top: 20px;
+}
+
+.calculator-wrapper .optional {
+    font-style: italic;
+    color: #777;
+}
+
+.calculator-wrapper .header-icon {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.calculator-wrapper .header-icon img {
+    width: 50px;
+    height: 50px;
+}
+
+.calculator-wrapper .footer-note {
+    margin-top: 20px;
+    font-size: 12px;
+    color: #777;
+    text-align: center;
+}
 
 
 /* Responsive Design */
