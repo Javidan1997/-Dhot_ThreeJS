@@ -1,20 +1,24 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
 import { TransformControls } from 'three/addons/controls/TransformControls.js';
+
 import {
     initializeZipModule,
     applyMaterialChangeZip,
     setCurrentColor,
     updateSelectedZips,
     setupZipButtons,
+    removeAllZips,
     setupZipControl,
     frontZip,
     rearZip,
     leftZip,
     rightZip,
-    setSelectedSize
+    setSelectedSize,
+    toggleZip,
+    selectedZips 
 } from './zip.js';
 
 
@@ -22,46 +26,214 @@ document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('three-js-container');
     const scene = new THREE.Scene();
 
-    const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 100);
+    const camera = new THREE.PerspectiveCamera(35, container.clientWidth / container.clientHeight, 0.1, 2000);
+
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.setPixelRatio( container.devicePixelRatio );
     renderer.shadowMap.enabled = true;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-	renderer.toneMappingExposure = 1;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
     container.appendChild(renderer.domElement);
 
-    const environment = new RoomEnvironment();
-	const pmremGenerator = new THREE.PMREMGenerator( renderer );
+    // const environment = new RoomEnvironment();
+	// const pmremGenerator = new THREE.PMREMGenerator( renderer );
 
-	scene.background = new THREE.Color( 0xbbbbbb );
+	// scene.background = new THREE.Color( 0xbbbbbb );
  
-	scene.environment = pmremGenerator.fromScene( environment ).texture;
-    environment.receiveShadow = true;
-    environment.castShadow = true;
+	// scene.environment = pmremGenerator.fromScene( environment ).texture;
+    // environment.receiveShadow = true;
+    // environment.castShadow = true;
+
+    // New environment setup using EXRLoader
+    const rgbeLoader = new RGBELoader();
+
+    // Load the HDR environment map in 4K resolution
+    rgbeLoader.load('goegap_4k.hdr', (hdrTexture) => {
+        // Set the mapping to Equirectangular for the HDR texture
+        hdrTexture.mapping = THREE.EquirectangularReflectionMapping;
+
+        // Set the environment and background to the HDR texture
+        scene.environment = hdrTexture;
+        scene.background = hdrTexture;
+
+        // Use proper tone mapping for HDR realism
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.2; // Adjust exposure as needed
+
+        // Ensure the HDR texture uses linear encoding
+        hdrTexture.encoding = THREE.LinearEncoding;
+    });
+    
+    // 
     
 
 
     const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.25;
+    controls.rotateSpeed = 0.5;
+    // controls.dampingFactor = 0.15;
     controls.enableZoom = true;
-    
+    controls.minPolarAngle = 0.9; // Limit upward rotation
+    controls.maxPolarAngle = 1.69; // Limit downward rotation
+    controls.maxDistance = 17
 
-    const floorGeometry = new THREE.PlaneGeometry(100, 50);
+    // const floorGeometry = new THREE.PlaneGeometry(100, 50);
+    // const floorMaterial = new THREE.MeshStandardMaterial({
+    //     color: 0xF9F6EE, // Gray floor color
+    //     roughness: 0.8, // High roughness for a less reflective surface
+    //     metalness: 0, // No metalness for the floor
+    // });
+
+    // const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    // floor.rotation.x = -Math.PI / 2; // Rotate the floor to lie flat
+    // floor.position.y = -2; // Lower the floor slightly below the cube
+    // floor.receiveShadow = true; // Enable shadows to be cast on the floor
+    // scene.add(floor);
+    const gltfLoader = new GLTFLoader();
+
+
+    // Load the textures
+    const textureLoader = new THREE.TextureLoader();
+
+    const diffuseTexture = textureLoader.load('wood_planks_2k/textures/wood_planks_diff_2k.jpg');
+    const normalTexture = textureLoader.load('wood_planks_2k/textures/wood_planks_nor_gl_2k.jpg');
+    const roughnessTexture = textureLoader.load('wood_planks_2k/textures/wood_planks_rough_2k.jpg');
+    const aoTexture = textureLoader.load('wood_planks_2k/textures/wood_planks_ao_2k.jpg');
+    const displacementTexture = textureLoader.load('wood_planks_2k/textures/wood_planks_disp_2k.jpg');
+
+    // Set texture wrapping and repeat for tiling the texture appropriately
+    diffuseTexture.wrapS = diffuseTexture.wrapT = THREE.RepeatWrapping;
+    normalTexture.wrapS = normalTexture.wrapT = THREE.RepeatWrapping;
+    roughnessTexture.wrapS = roughnessTexture.wrapT = THREE.RepeatWrapping;
+    aoTexture.wrapS = aoTexture.wrapT = THREE.RepeatWrapping;
+    displacementTexture.wrapS = displacementTexture.wrapT = THREE.RepeatWrapping;
+
+    // Adjust the repeat for proper scaling (this will depend on how much you want to tile the texture)
+    const repeatX = 2;  // Adjust these numbers based on the visual result you want
+    const repeatY = 2;
+    diffuseTexture.repeat.set(repeatX, repeatY);
+    normalTexture.repeat.set(repeatX, repeatY);
+    roughnessTexture.repeat.set(repeatX, repeatY);
+    aoTexture.repeat.set(repeatX, repeatY);
+    displacementTexture.repeat.set(repeatX, repeatY);
+
+    // Create the floor material using the loaded textures
     const floorMaterial = new THREE.MeshStandardMaterial({
-        color: 0xF9F6EE, // Gray floor color
-        roughness: 0.8, // High roughness for a less reflective surface
-        metalness: 0, // No metalness for the floor
+        map: diffuseTexture,
+        normalMap: normalTexture,
+        roughnessMap: roughnessTexture,
+        aoMap: aoTexture,
+        displacementMap: displacementTexture,
+        displacementScale: 0.01,  // Adjust for appropriate displacement depth
+        roughness: 0.7,  // Increase roughness for a more realistic wood look
+        metalness: 0,  // No metalness since it's wood
+        color: new THREE.Color(0xB58868),
     });
 
+    // Create the floor geometry (16 feet x 24 feet -> 4.88m x 7.32m)
+    const floorGeometry = new THREE.PlaneGeometry(8, 6);
+
+    // Create the floor mesh
     const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-    floor.rotation.x = -Math.PI / 2; // Rotate the floor to lie flat
-    floor.position.y = -2; // Lower the floor slightly below the cube
-    floor.receiveShadow = true; // Enable shadows to be cast on the floor
+
+    // Position and rotate the floor to lay flat
+    floor.rotation.x = -Math.PI / 2; // Lay the floor flat
+    floor.position.y = -2; // Place it at ground level
+    floor.position.z = -2.5; // Place it at ground level
+    floor.receiveShadow = true; // Allow it to receive shadows
+    floor.castShadow = true    // Add the floor to the scene
     scene.add(floor);
+    function createTextLabel(text, position) {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = 256;
+        canvas.height = 256;
+    
+        // Set font properties
+        context.font = '36px Arial';
+        context.fillStyle = 'black';
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.fillText(text, 128, 128);
+    
+        // Create a texture from the canvas
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.needsUpdate = true;
+    
+        // Create sprite material with the canvas texture
+        const material = new THREE.SpriteMaterial({ map: texture });
+        const sprite = new THREE.Sprite(material);
+    
+        // Set the position of the label
+        sprite.position.set(position.x, position.y, position.z);
+        sprite.scale.set(2, 2, 1); // Adjust the scale as needed
+    
+        return sprite;
+    }
+
+    const axesHelper = new THREE.AxesHelper(2); // The number represents the size of the helper (adjust as needed)
+    axesHelper.position.set(0, -1.99, -2.5); // Place the helper at the center of the floor
+    scene.add(axesHelper);
+
+    const westLabel = createTextLabel('W', new THREE.Vector3(-4, -1.9, -2.5));  // West is along the negative X-axis
+    const eastLabel = createTextLabel('E', new THREE.Vector3(4, -1.9, -2.5));   // East is along the positive X-axis
+    const northLabel = createTextLabel('N', new THREE.Vector3(0, -1.9, -5.5)); // North is along the negative Z-axis
+    const southLabel = createTextLabel('S', new THREE.Vector3(0, -1.9, 0.5));  // South is along the positive Z-axis
+
+    // Add labels to the scene
+    scene.add(westLabel);
+    scene.add(eastLabel);
+    scene.add(northLabel);
+    scene.add(southLabel);
+
+
+    // Load the grass (rocky terrain) textures
+    const grassColorMap = textureLoader.load('rocky_terrain_02_2k/textures/rocky_terrain_02_diff_2k.jpg');
+    const grassNormalMap = textureLoader.load('rocky_terrain_02_2k/textures/rocky_terrain_02_nor_gl_2k.jpg');
+    const grassRoughnessMap = textureLoader.load('rocky_terrain_02_2k/textures/rocky_terrain_02_rough_2k.jpg');
+    const grassAmbientOcclusionMap = textureLoader.load('rocky_terrain_02_2k/textures/rocky_terrain_02_ao_2k.jpg');
+    // Optionally load displacement or other maps
+    // const grassDisplacementMap = textureLoader.load('rocky_terrain_02_2k/textures/rocky_terrain_02_disp_2k.jpg');
+
+    // Repeat textures to tile them across the ground
+    grassColorMap.wrapS = grassColorMap.wrapT = THREE.RepeatWrapping;
+    grassNormalMap.wrapS = grassNormalMap.wrapT = THREE.RepeatWrapping;
+    grassRoughnessMap.wrapS = grassRoughnessMap.wrapT = THREE.RepeatWrapping;
+    grassAmbientOcclusionMap.wrapS = grassAmbientOcclusionMap.wrapT = THREE.RepeatWrapping;
+
+    const grassRepeats = 60;  // Adjust the repeat factor for tiling
+    grassColorMap.repeat.set(grassRepeats, grassRepeats);
+    grassNormalMap.repeat.set(grassRepeats, grassRepeats);
+    grassRoughnessMap.repeat.set(grassRepeats, grassRepeats);
+    grassAmbientOcclusionMap.repeat.set(grassRepeats, grassRepeats);
+
+    // Create geometry for the grassy area
+    const grassGeometry = new THREE.PlaneGeometry(400, 400);  // 400x400 meters area
+
+    const grassMaterial = new THREE.MeshStandardMaterial({
+        map: grassColorMap,
+        normalMap: grassNormalMap,
+        roughnessMap: grassRoughnessMap,
+        aoMap: grassAmbientOcclusionMap,
+        roughness: 0.9,  // Adjust for a rough, non-reflective surface
+        metalness: 0.0,  // No metallic reflections for grass
+        // Uncomment below to use displacement map for extra depth
+        // displacementMap: grassDisplacementMap,
+        // displacementScale: 0.1,  // Adjust the displacement scale
+    });
+
+    // If using ambient occlusion, set the 'uv2' attribute
+    grassGeometry.setAttribute('uv2', new THREE.BufferAttribute(grassGeometry.attributes.uv.array, 2));
+
+    // Create the mesh and place it in the scene
+    const grass = new THREE.Mesh(grassGeometry, grassMaterial);
+    grass.rotation.x = -Math.PI / 2;  // Make the plane horizontal
+    grass.position.y = -2.05;  // Adjust height to avoid z-fighting with other surfaces
+    grass.receiveShadow = true;  // Enable shadows on the grass
+
+    // Add the grass mesh to the scene
+    scene.add(grass);
+
 
     // Improved Lighting Setup
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
@@ -70,8 +242,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
 
-    directionalLight.position.set(5, 10, 7.5);
-    directionalLight.intensity = 2.9
+    directionalLight.position.set(5, 15, 7.5);
+    directionalLight.intensity = 1
     directionalLight.castShadow = true;
     scene.add(directionalLight);
     //Set up shadow properties for the light
@@ -84,8 +256,8 @@ document.addEventListener('DOMContentLoaded', () => {
     directionalLight.shadow.camera.top = 10;
     directionalLight.shadow.camera.bottom = -10;
     directionalLight.shadow.bias = -0.002;
-    directionalLight.shadow.intensity = 2.5
-    camera.position.set(0, -0.2, 3);
+    directionalLight.shadow.intensity = 3.5
+    camera.position.set(0, -0.4, 12);
     controls.update();
 
     let object;
@@ -123,8 +295,107 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     let rotatingParts = []; // Store parts to rotate
 
+    let fanModel = null;
+    const fanModelFiles = {
+        "10'x10'": "Zonix Fan  (10').glb",
+        "10'x14'": "Zonix Fan  (10').glb",
+        "14'x14'": "Zonix Fan  (14').glb",
+        "14'x20'": "Zonix Fan  (14').glb"
+    };
+    // Base Prices (example prices, modify accordingly)
+    const pergolaPrices = {
+        "10'x10'": 2400,
+        "10'x14'": 3000,
+        "14'x14'": 3500,
+        "14'x20'": 4000
+    };
 
-    const gltfLoader = new GLTFLoader();
+    const slidePrices = {
+        "10'x10'": 300,
+        "10'x14'": 400,
+        "14'x14'": 500,
+        "14'x20'": 600
+    };
+
+    const zipPrices = {
+        "10'x10'": 200,
+        "10'x14'": 300,
+        "14'x14'": 400,
+        "14'x20'": 500
+    };
+
+    // Accessory prices
+    const addonPrices = {
+        lighting: 500,
+        fan: 300,
+        heater: 500
+    };
+
+    // Selected configuration (initialize with no selection)
+    let selectedSlides = { front: false, rear: false, left: false, right: false };
+    let selectedAddons = { lighting: false, fan: false, heater: false };
+
+    // Function to calculate and display the total price
+    function updateTotalPrice() {
+        let totalPrice = 0;
+        
+        // Add pergola base price
+        totalPrice += pergolaPrices[selectedSize];
+
+        // Add slide prices
+        Object.keys(selectedSlides).forEach((side) => {
+            if (selectedSlides[side]) {
+                totalPrice += slidePrices[selectedSize];
+            }
+        });
+
+        // Add zip prices
+        Object.keys(selectedZips).forEach((side) => {
+            if (selectedZips[side]) {
+                totalPrice += zipPrices[selectedSize];
+            }
+        });
+
+        // Add selected add-ons
+        Object.keys(selectedAddons).forEach((addon) => {
+            if (selectedAddons[addon]) {
+                totalPrice += addonPrices[addon];
+            }
+        });
+        document.querySelector('.add-to-cart-btn').textContent = `Add To Cart $${totalPrice}`;
+
+        // Update the calculator content dynamically
+        document.getElementById('calculator-content').innerHTML = `
+            <div class="header-icon">
+                <div>
+                    <p><strong>Pergolade Tilt Pro</strong><br>${selectedSize} &nbsp;&nbsp;$${pergolaPrices[selectedSize]}</p>
+                </div>
+                <div>
+                    <img src="calc.png" alt="icon">
+                </div>
+            </div>
+            <p><strong>Slider:</strong></p>
+            <ul>
+                ${Object.keys(selectedSlides).map(side => 
+                    selectedSlides[side] ? `<li>${side.charAt(0).toUpperCase() + side.slice(1)}&nbsp;&nbsp;$${slidePrices[selectedSize]}</li>` : '').join('')}
+            </ul>
+            <p><strong>Screen:</strong></p>
+            <ul>
+                ${Object.keys(selectedZips).map(side => 
+                    selectedZips[side] ? `<li>${side.charAt(0).toUpperCase() + side.slice(1)}&nbsp;&nbsp;$${zipPrices[selectedSize]}</li>` : '').join('')}
+            </ul>
+            <p><strong>Accessories:</strong></p>
+            <ul>
+                ${Object.keys(selectedAddons).map(addon => 
+                    selectedAddons[addon] ? `<li>${addon.charAt(0).toUpperCase() + addon.slice(1)}&nbsp;&nbsp;$${addonPrices[addon]}</li>` : '').join('')}
+            </ul>
+            <div class="total-price">Total Price: $${totalPrice}</div>
+            <div class="footer-note">*Estimated price; final cost confirmed after thorough assessment of all factors.</div>
+        `;
+    }
+
+       
+
 
     function updateButtonLabels(size) {
         const sideButtons = document.querySelectorAll('.side-btn');
@@ -139,7 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (side === 'left' || side === 'right') {
                 dimension = size.split('x')[0]; // Get the first part (e.g., 10 or 14)
             }
-            btn.textContent = `${dimension}' ${side.charAt(0).toUpperCase() + side.slice(1)}`;
+            btn.textContent = `${dimension} ${side.charAt(0).toUpperCase() + side.slice(1)}`;
         });
     
         // Update the zip buttons based on the selected size
@@ -151,7 +422,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (zip === 'left' || zip === 'right') {
                 dimension = size.split('x')[0]; // Get the first part (e.g., 10 or 14)
             }
-            btn.textContent = `${dimension}' ${zip.charAt(0).toUpperCase() + zip.slice(1)}`;
+            btn.textContent = `${dimension} ${zip.charAt(0).toUpperCase() + zip.slice(1)}`;
         });
     }
     
@@ -161,9 +432,16 @@ document.addEventListener('DOMContentLoaded', () => {
             scene.remove(object);
             object = null;
         }
+        
+        if (fanModel) {
+            scene.remove(fanModel);
+            fanModel = null;
+        }
+       
         ledPart = null;
         ledOriginalMaterial = null;
         ledLight = null; // Reset the light reference
+        removeAllZips()
 
         document.querySelectorAll('.side-btn').forEach((btn) => {
             btn.classList.remove('active');
@@ -194,22 +472,22 @@ document.addEventListener('DOMContentLoaded', () => {
                         child.castShadow = true;
                         
                         // Identify parts for rotation based on name pattern
-                        if (child.name && child.name.match(/^3DGeom-3/) && size == "14'x20'") {
+                        if (child.name && child.name.match(/^3DGeom-1/) && size == "14'x20'") {
                             rotatingParts.push(child);
-                        } else if (child.name && child.name.match(/^3DGeom-3/) && size == "14'x14'") {
+                        } else if (child.name && child.name.match(/^3DGeom-1/) && size == "14'x14'") {
                             rotatingParts.push(child);
-                        } else if (child.name && child.name.match(/^3DGeom-1/) && size == "10'x14'") {
+                        } else if (child.name && child.name.match(/^3DGeom-3/) && size == "10'x14'") {
                             rotatingParts.push(child);
-                        } else if (child.name && child.name.match(/^3DGeom-3/) && size == "10'x10'") {
+                        } else if (child.name && child.name.match(/^3DGeom-1/) && size == "10'x10'") {
                             rotatingParts.push(child);
                         }
-                        if (child.name && child.name.match(/^3DGeom-120/) && size == "14'x20'") {
+                        if (child.name && child.name.match(/^3DGeom-90/) && size == "14'x20'") {
                             ledPart=child;
-                        } else if (child.name && child.name.match(/^3DGeom-84/) && size == "14'x14'") {
+                        } else if (child.name && child.name.match(/^3DGeom-64/) && size == "14'x14'") {
                             ledPart=child;
-                        } else if (child.name && child.name.match(/^3DGeom-84/) && size == "10'x14'") {
+                        } else if (child.name && child.name.match(/^3DGeom-46/) && size == "10'x14'") {
                             ledPart=child;
-                        } else if (child.name && child.name.match(/^3DGeom-60/) && size == "10'x10'") {
+                        } else if (child.name && child.name.match(/^3DGeom-32/) && size == "10'x10'") {
                             ledPart=child;
                         }
                     }
@@ -231,8 +509,9 @@ document.addEventListener('DOMContentLoaded', () => {
   
     const zipControl = document.getElementById('zipControl');
     loadModel(selectedSize); // Load default model
+    updateTotalPrice();
+
     initializeZipModule(scene, gltfLoader); // Initialize zip module
-    setupZipButtons(); // Set up zip buttons once
     setupZipControl(zipControl)
     
 
@@ -260,6 +539,7 @@ document.addEventListener('DOMContentLoaded', () => {
             selectedSize = btn.textContent.trim();
             setSelectedSize(selectedSize)
             loadModel(selectedSize);
+            updateTotalPrice();
             setupZipControl(zipControl, selectedSize); // Set up zip slider control
             updateButtonLabels(selectedSize); 
         });
@@ -285,8 +565,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (selectedColor === 'black' || selectedColor === 'white') {
                     newMaterial = new THREE.MeshStandardMaterial({
                         color: selectedColor === 'black' ? 0x2B2B2B : 0xffffff,
-                        metalness: 0.9,
-                        roughness: 0.5,
+                        roughness:0.4,
+                        metalness:1
                         // flatShading: true,
                     });
                 }
@@ -302,6 +582,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 }
                 function applyMaterialChangeGlass(targetObject) {
+                    newMaterial = new THREE.MeshStandardMaterial({
+                        color: selectedColor === 'black' ? 0x2B2B2B : 0xffffff,
+                        roughness:0.7,
+                        metalness:1
+                        // flatShading: true,
+                    });
                     targetObject.traverse((child) => {
                         if (child.isMesh) {
                             // Apply new material or revert to original, excluding '3DGeom-25'
@@ -316,6 +602,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Traverse the main object and apply the material
                 applyMaterialChange(object);
+                applyMaterialChange(fanModel)
 
 
                 if (frontGlass) applyMaterialChangeGlass(frontGlass);
@@ -335,8 +622,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (object) {
             let defaultMaterial = new THREE.MeshStandardMaterial({
                 color: currentColor === 'black' ? 0x2B2B2B : 0xffffff,
-                metalness: 0.9,
-                roughness: 0.5,
+                roughness:0.4,
+                metalness:1
             });
 
     
@@ -352,8 +639,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (object) {
             let defaultMaterial = new THREE.MeshStandardMaterial({
                 color: currentColor === 'black' ? 0x2B2B2B : 0xffffff,
-                metalness: 0.9,
-                roughness: 0.5,
+                roughness:0.7,
+                metalness:1
             });
     
             // Apply default black material to all mesh children
@@ -668,6 +955,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (modelMap[side]) {
                     toggleSlidingGlass(side, modelMap[side]);
+                    // Mark the side as selected/deselected
+                    selectedSlides[side] = !selectedSlides[side];
+                    updateTotalPrice();
+
                 }
             }
         });
@@ -712,6 +1003,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (modelMap[side]) {
                 toggleSlidingGlass(side, modelMap[side]);
+                // Mark the side as selected/deselected
+                selectedSlides[side] = !selectedSlides[side];
+                updateTotalPrice();
+
+            }
+        });
+    });
+
+    document.querySelectorAll('.zip-btn').forEach((btn) => {
+        btn.addEventListener('click', (event) => {
+            const side = btn.getAttribute('data-zip');
+            btn.classList.toggle('active');
+            let modelMap;
+    
+            if (selectedSize === "14'x20'") {
+                modelMap = {
+                    'front': 'Zip 6.glb',
+                    'rear': 'Zip 6.glb',
+                    'left': 'Zip 4.glb',
+                    'right': 'Zip 4.glb'
+                };
+            } else if (selectedSize === "14'x14'") {
+                modelMap = {
+                    'front': 'Zip 4.glb',
+                    'rear': 'Zip 4.glb',
+                    'left': 'Zip 4.glb',
+                    'right': 'Zip 4.glb'
+                };
+            } else if (selectedSize === "10'x14'") {
+                modelMap = {
+                    'front': 'Zip 4.glb',
+                    'rear': 'Zip 4.glb',
+                    'left': 'Zip 3.glb',
+                    'right': 'Zip 3.glb'
+                };
+            } else if (selectedSize === "10'x10'") {
+                modelMap = {
+                    'front': 'Zip 3.glb',
+                    'rear': 'Zip 3.glb',
+                    'left': 'Zip 3.glb',
+                    'right': 'Zip 3.glb'
+                };
+            }
+    
+            if (modelMap[side]) {
+                toggleZip(side, modelMap[side], selectedSize);
+                selectedZips[side] = !selectedZips[side];
+                updateTotalPrice();
             }
         });
     });
@@ -1019,12 +1358,68 @@ document.addEventListener('DOMContentLoaded', () => {
             if (nextState === 'add') {
                 console.log('Adding', addon);
                 addAddon(addon);
+                selectedAddons[addon] = nextState === 'add';
+                updateTotalPrice();
             } else if (nextState === 'close') {
                 console.log('Removing', addon);
                 removeAddon(addon);
+                selectedAddons[addon] = nextState === 'add';
+                updateTotalPrice();
             }
         });
     });
+
+    // Function to add or remove the fan model based on user action
+    function addOrRemoveFan(addFan) {
+        if (addFan) {
+            const fanModelPath = fanModelFiles[selectedSize];
+            if (fanModel) {
+                scene.remove(fanModel);
+            }
+
+            gltfLoader.load(
+                fanModelPath,
+                (gltf) => {
+                    fanModel = gltf.scene;
+                    fanModel.scale.set(1, 1, 1);
+                    fanModel.position.set(0, -2, 0); // Position the fan in the middle
+                    scene.add(fanModel);
+                    console.log('Fan added to the scene');
+                    setDefaultBlackMaterial(fanModel); 
+
+                },
+                (xhr) => console.log(`${(xhr.loaded / xhr.total) * 100}% loaded`),
+                (error) => console.error('An error occurred while loading the fan model:', error)
+            );
+
+        } else {
+            if (fanModel) {
+                scene.remove(fanModel);
+                fanModel = null;
+                console.log('Fan removed from the scene');
+            }
+        }
+    }
+
+    // Add logic to add or remove fan when the "addon-control-btn" is clicked
+    document.querySelectorAll('.addon-control-btn').forEach((btn) => {
+        btn.addEventListener('click', (event) => {
+            const button = event.currentTarget;
+            const addon = button.getAttribute('data-addon');
+
+            if (addon === 'fan') {
+                // Check the next state to determine if we should add or remove the fan
+                let nextState = button.getAttribute('data-state');
+                if (nextState === 'add') {
+                    addOrRemoveFan(true); // Add fan
+                } else if (nextState === 'close') {
+                    addOrRemoveFan(false); // Remove fan
+                }
+            }
+        });
+    });
+
+    
             
 
     window.addEventListener('resize', () => {
