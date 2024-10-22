@@ -190,48 +190,62 @@ export function toggleZip(side, filePath, selectedSize) {
 function positionZip(zip, side,selectedSize) {
     // Use the same positions as the sliding glass
     if (selectedSize === "14'x20'") {
-        if (side === 'front') zip.position.set(0, -2, 0);
-        if (side === 'rear') zip.position.set(0, -2, -4.11);
+        if (side === 'front') zip.position.set(0, -2, 0.08);
+        if (side === 'rear'){
+            zip.position.set(0, -2, -4.45);
+            zip.rotation.y = -Math.PI;
+
+        } 
         if (side === 'left') {
-            zip.position.set(-2.85, -2, -2.18);
-            zip.rotation.y = Math.PI / 2;
+            zip.position.set(-3.2, -2, -2.18);
+            zip.rotation.y = -Math.PI / 2;
         }
         if (side === 'right') {
-            zip.position.set(2.85, -2, -2.18);
-            zip.rotation.y = -Math.PI / 2;
+            zip.position.set(3.2, -2, -2.18);
+            zip.rotation.y = Math.PI / 2;
         }
     } else if (selectedSize === "14'x14'") {
-        if (side === 'front') zip.position.set(0, -2, 0);
-        if (side === 'rear') zip.position.set(0, -2, -4.11);
+        if (side === 'front') zip.position.set(0, -2, 0.08);
+        if (side === 'rear'){
+            zip.position.set(0, -2, -4.45);
+            zip.rotation.y = -Math.PI;
+
+        } 
         if (side === 'left') {
-            zip.position.set(-1.95, -2, -2.18);
-            zip.rotation.y = Math.PI / 2;
+            zip.position.set(-2.24, -2, -2.18);
+            zip.rotation.y = -Math.PI / 2;
         }
         if (side === 'right') {
-            zip.position.set(1.95, -2, -2.18);
-            zip.rotation.y = -Math.PI / 2;
+            zip.position.set(2.24, -2, -2.18);
+            zip.rotation.y = Math.PI / 2;
         }
     } else if (selectedSize === "10'x14'") {
-        if (side === 'front') zip.position.set(0, -2, 0);
-        if (side === 'rear') zip.position.set(0, -2, -2.82);
+        if (side === 'front') zip.position.set(0, -2, 0.08);
+        if (side === 'rear') {
+            zip.position.set(0, -2, -3.20);
+            zip.rotation.y = -Math.PI; 
+        }
         if (side === 'left') {
-            zip.position.set(-1.95, -2, -1.55);
-            zip.rotation.y = Math.PI / 2;
+            zip.position.set(-2.24, -2, -1.55);
+            zip.rotation.y = -Math.PI / 2;
         }
         if (side === 'right') {
-            zip.position.set(1.95, -2, -1.55);
-            zip.rotation.y = -Math.PI / 2;
+            zip.position.set(2.24, -2, -1.55);
+            zip.rotation.y = Math.PI / 2;
         }
     } else if (selectedSize === "10'x10'") {
-        if (side === 'front') zip.position.set(0, -2, 0);
-        if (side === 'rear') zip.position.set(0, -2, -2.82);
+        if (side === 'front') zip.position.set(0, -2, 0.08);
+        if (side === 'rear') {
+            zip.position.set(0, -2, -3.20);
+            zip.rotation.y = -Math.PI; 
+        }
         if (side === 'left') {
-            zip.position.set(-1.32, -2, -1.55);
-            zip.rotation.y = Math.PI / 2;
+            zip.position.set(-1.63, -2, -1.55);
+            zip.rotation.y = -Math.PI / 2;
         }
         if (side === 'right') {
-            zip.position.set(1.32, -2, -1.55);
-            zip.rotation.y = -Math.PI / 2;
+            zip.position.set(1.63, -2, -1.55);
+            zip.rotation.y = Math.PI / 2;
         }
     }
 }
@@ -244,31 +258,31 @@ export function updateSelectedZips(selectedSize) {
 
             if (selectedSize === "14'x20'") {
                 modelMap = {
-                    'front': 'Zip 6.glb',
-                    'rear': 'Zip 6.glb',
-                    'left': 'Zip 4.glb',
-                    'right': 'Zip 4.glb'
+                    'front': "https://cdn.shopify.com/3d/models/f797a4040efbc6f2/Zip_6.glb" || 'Zip 3.glb',
+                    'rear': "https://cdn.shopify.com/3d/models/f797a4040efbc6f2/Zip_6.glb" || 'Zip 3.glb',
+                    'left': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb',
+                    'right': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb'
                 };
             } else if (selectedSize === "14'x14'") {
                 modelMap = {
-                    'front': 'Zip 4.glb',
-                    'rear': 'Zip 4.glb',
-                    'left': 'Zip 4.glb',
-                    'right': 'Zip 4.glb'
+                    'front': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb',
+                    'rear': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb',
+                    'left': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb',
+                    'right': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb'
                 };
             } else if (selectedSize === "10'x14'") {
                 modelMap = {
-                    'front': 'Zip 4.glb',
-                    'rear': 'Zip 4.glb',
-                    'left': 'Zip 3.glb',
-                    'right': 'Zip 3.glb'
+                    'front': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb',
+                    'rear': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb',
+                    'left': "https://cdn.shopify.com/3d/models/6538d71a5e0d48ea/Zip_3.glb" || 'Zip 3.glb',
+                    'right': "https://cdn.shopify.com/3d/models/6538d71a5e0d48ea/Zip_3.glb" || 'Zip 3.glb'
                 };
             } else if (selectedSize === "10'x10'") {
                 modelMap = {
-                    'front': 'Zip 3.glb',
-                    'rear': 'Zip 3.glb',
-                    'left': 'Zip 3.glb',
-                    'right': 'Zip 3.glb'
+                    'front': "https://cdn.shopify.com/3d/models/6538d71a5e0d48ea/Zip_3.glb" || 'Zip 3.glb',
+                    'rear': "https://cdn.shopify.com/3d/models/6538d71a5e0d48ea/Zip_3.glb" || 'Zip 3.glb',
+                    'left': "https://cdn.shopify.com/3d/models/6538d71a5e0d48ea/Zip_3.glb" || 'Zip 3.glb',
+                    'right': "https://cdn.shopify.com/3d/models/6538d71a5e0d48ea/Zip_3.glb" || 'Zip 3.glb'
                 };
             }
     
@@ -295,31 +309,31 @@ export function setupZipButtons() {
             // Update modelMap to include Zips (Zip 6.glb, Zip 4.glb, Zip 3.glb)
             if (selectedSize === "14'x20'") {
                 modelMap = {
-                    'front': 'Zip 6.glb',
-                    'rear': 'Zip 6.glb',
-                    'left': 'Zip 4.glb',
-                    'right': 'Zip 4.glb'
+                    'front': "https://cdn.shopify.com/3d/models/f797a4040efbc6f2/Zip_6.glb" || 'Zip 3.glb',
+                    'rear': "https://cdn.shopify.com/3d/models/f797a4040efbc6f2/Zip_6.glb" || 'Zip 3.glb',
+                    'left': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb',
+                    'right': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb'
                 };
             } else if (selectedSize === "14'x14'") {
                 modelMap = {
-                    'front': 'Zip 4.glb',
-                    'rear': 'Zip 4.glb',
-                    'left': 'Zip 4.glb',
-                    'right': 'Zip 4.glb'
+                    'front': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb',
+                    'rear': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb',
+                    'left': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb',
+                    'right': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb'
                 };
             } else if (selectedSize === "10'x14'") {
                 modelMap = {
-                    'front': 'Zip 4.glb',
-                    'rear': 'Zip 4.glb',
-                    'left': 'Zip 3.glb',
-                    'right': 'Zip 3.glb'
+                    'front': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb',
+                    'rear': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb',
+                    'left': "https://cdn.shopify.com/3d/models/6538d71a5e0d48ea/Zip_3.glb" || 'Zip 3.glb',
+                    'right': "https://cdn.shopify.com/3d/models/6538d71a5e0d48ea/Zip_3.glb" || 'Zip 3.glb'
                 };
             } else if (selectedSize === "10'x10'") {
                 modelMap = {
-                    'front': 'Zip 3.glb',
-                    'rear': 'Zip 3.glb',
-                    'left': 'Zip 3.glb',
-                    'right': 'Zip 3.glb'
+                    'front': "https://cdn.shopify.com/3d/models/6538d71a5e0d48ea/Zip_3.glb" || 'Zip 3.glb',
+                    'rear': "https://cdn.shopify.com/3d/models/6538d71a5e0d48ea/Zip_3.glb" || 'Zip 3.glb',
+                    'left': "https://cdn.shopify.com/3d/models/6538d71a5e0d48ea/Zip_3.glb" || 'Zip 3.glb',
+                    'right': "https://cdn.shopify.com/3d/models/6538d71a5e0d48ea/Zip_3.glb" || 'Zip 3.glb'
                 };
             }
     
@@ -337,7 +351,7 @@ export function setupZipControl(zipControlElement, selectedSize) {
     zipControlElement.addEventListener('input', (event) => {
         const zipValueDisplay = document.getElementById('zipValue');
         const zipValue = event.target.value;
-        zipValueDisplay.textContent = `${zipValue}%`; // Update the displayed value in percentage
+        // zipValueDisplay.textContent = `${zipValue}%`; // Update the displayed value in percentage
 
         // Convert the slider value (0-100) into a range from 0 to 1
         const slideAmount = THREE.MathUtils.mapLinear(zipValue, 0, 100, 0, 1);
