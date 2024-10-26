@@ -10,7 +10,13 @@
     --color-accent: #ffd700;
 }
 
-/* General styles */
+/* Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
     font-family: var(--font-family);
     background-color: var(--color-white);
@@ -19,15 +25,28 @@ body {
     padding: 0;
 }
 
+/* Typography */
+p, h1, h2, h3, h4, h5, h6 {
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+p {
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+/* Product Page Container */
 .product-page-container {
     display: grid;
-    grid-template-columns: 2.5fr 1fr;
+    grid-template-columns: 3fr 1fr;
     gap: 20px;
     max-width: 1300px;
     margin: 0 auto;
     padding-top: 20px;
 }
 
+/* Product Images */
 .product-images {
     width: 100%;
     position: sticky;
@@ -43,19 +62,18 @@ body {
 .three-js-container {
     position: relative;
     width: 100%;
-    padding-top: 75%; /* 16:9 Aspect Ratio (9/16 * 100) */
+    padding-top: 75%; /* 16:9 Aspect Ratio */
 }
 
 .three-js-container canvas {
     position: absolute;
     top: 20px;
-    padding-bottom: 50px;
-    padding-top: 20px;
-
+    padding: 20px 0 50px 0;
 }
 
+/* Product Details */
 .product-details {
-    padding: 15px;
+    padding: 5px;
 }
 
 .product-title {
@@ -93,255 +111,348 @@ body {
 }
 
 /* Product Options */
-.product-options h3 {
-    font-size: 15px;
-    font-weight: 400;
-    margin-bottom: 8px;
+.product-options {
+    margin-bottom: 40px;
 }
 
+.product-options h3 {
+    font-size: 16px;
+    font-weight: 400;
+    margin-bottom: 8px;
+    color: #000000;
+}
+
+/* Color Options */
 .product-options .color {
     display: flex;
     gap: 8px;
     margin-bottom: 15px;
 }
 
-.product-options .color-btn {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
+.color-container {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #c4c4c4;
+    border-radius: 8px;
     cursor: pointer;
+    transition: border-color 0.3s;
+    box-sizing: border-box;
 }
 
-.product-options .color-btn.black {
+.color-container.active {
+    border-color: blue;
+}
+
+.color-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.color-btn.black {
     background-color: var(--color-secondary);
 }
 
-.product-options .color-btn.white {
+.color-btn.white {
     background-color: #f1f0ea;
 }
 
-.product-options .size-options {
+/* Size Options */
+.size-options {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 15px;
+}
+
+/* Main Color Options (Ensure this selector matches the HTML) */
+.main-color-selector {
     display: flex;
     gap: 8px;
     margin-bottom: 15px;
 }
 
-.size-btn {
-    padding: 6px 10px;
-    border: 2px solid var(--color-gray);
-    background-color: var(--color-white);
-    cursor: pointer;
-    border-radius: 6px;
-    font-size: 14px;
-    transition: background-color 0.3s;
-}
 
-.size-btn.active,
-.size-btn:hover {
-    background-color: var(--color-white);
-    color: var(--color-black);
-    border-color: var(--color-primary);
-}
 
-.rotation-container {
+
+
+.size-container {
     display: flex;
+    justify-content: center;
     align-items: center;
-    margin-top: 20px;
-    padding: 8px;
-    background-color: var(--color-gray-light);
+    width: 94px;
+    height: 62px;
+    border: 2px solid #BCBCBC;
     border-radius: 8px;
-    width: fit-content;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+.size-container.active {
+    border-color: #0171E3;
+}
+
+.size-btn {
+    border: none;
+    background: none;
+    font-size: 18px;
+    color: #000000;
+    cursor: pointer;
+    outline: none;
+}
+
+/* Rotation Slider */
+.rotation-container {
+    margin-top: 20px;
 }
 
 .rotation-label {
-    font-weight: bold;
+    font-weight: 400;
+    font-size: 16px;
+    color: #000000;
+    margin-bottom: 8px;
+}
+
+.rotation-slider-container {
+    display: flex;
+    align-items: center;
+}
+
+.rotation-value-start,
+.rotation-value-end,
+.zip-value-start,
+.zip-value-end,
+.glass-value-start,
+.glass-value-end {
+    font-weight: 400;
     font-size: 14px;
+    color: #000000;
+}
+
+.rotation-value-start,
+.zip-value-start,
+.glass-value-start {
     margin-right: 10px;
 }
 
-.rotation-slider {
-    width: 180px;
-    height: 6px;
-    background: #ccc;
-    outline: none;
-    border-radius: 5px;
+.rotation-value-end,
+.zip-value-end,
+.glass-value-end {
+    margin-left: 10px;
 }
 
-.rotation-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 16px;
-    height: 16px;
-    background: var(--color-primary);
+.rotation-slider {
+    width: 340px;
+    height: 6px;
+    background: #C7C7C7;
+    border: none;
+    border-radius: 5px;
+    outline: none;
+}
+
+.rotation-slider::-webkit-slider-thumb,
+.rotation-slider::-moz-range-thumb {
+    width: 23px;
+    height: 23px;
+    background: #1FA0EE;
     border-radius: 50%;
     cursor: pointer;
 }
 
-.rotation-value {
-    margin-left: 8px;
-    font-size: 14px;
-    font-weight: bold;
-    color: #333;
-}
-
 /* Add-ons Section */
-.product-options {
-    margin-bottom: 20px;
-}
-
 .add-on-buttons,
 .zip-buttons {
     display: flex;
-    gap: 8px;
-    margin-bottom: 15px;
+    gap: 20px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
 }
 
 .side-btn,
 .zip-btn {
-    padding: 6px 10px;
-    border: 2px solid var(--color-gray);
-    background-color: var(--color-white);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 200px;
+    padding: 15px;
+    border: 2px solid #CCCCCC;
+    border-radius: 12px;
+    background-color: #FFFFFF;
     cursor: pointer;
-    border-radius: 6px;
+    font-size: 16px;
+    transition: all 0.3s;
+    color: #333;
+}
+
+.side-btn span,
+.zip-btn span {
+    display: block;
+}
+
+.side-btn .price,
+.zip-btn .price {
+    margin: 10px;
     font-size: 14px;
-    transition: background-color 0.3s;
 }
 
 .side-btn.active,
-.side-btn:hover,
-.zip-btn.active,
-.zip-btn:hover {
-    background-color: var(--color-white);
-    color: var(--color-black);
-    border-color: var(--color-primary);
+.zip-btn.active {
+    border-color: #0073E6;
+    /* background-color: #F0F8FF; */
 }
 
-.glassAnimate-container,
-.zipAnimate-container {
+/* Glass and Zip Sliders */
+.zip-slider-container,
+.glass-slider-container {
     display: flex;
     align-items: center;
-    margin-top: 20px;
-    padding: 8px;
-    background-color: var(--color-gray-light);
-    border-radius: 8px;
-    width: fit-content;
 }
 
-.glass-label,
-.zip-label {
-    font-weight: bold;
-    font-size: 14px;
-    margin-right: 10px;
-}
-
-.glass-slider,
-.zip-slider {
-    width: 180px;
+.zip-slider,
+.glass-slider {
+    width: 270px;
     height: 6px;
-    background: #ccc;
-    outline: none;
+    background: #C7C7C7;
+    border: none;
     border-radius: 5px;
+    outline: none;
 }
 
+.zip-slider::-webkit-slider-thumb,
 .glass-slider::-webkit-slider-thumb,
-.zip-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 16px;
-    height: 16px;
-    background: var(--color-primary);
+.zip-slider::-moz-range-thumb,
+.glass-slider::-moz-range-thumb {
+    width: 23px;
+    height: 23px;
+    background: #1FA0EE;
     border-radius: 50%;
     cursor: pointer;
 }
 
-.glass-value,
-.zip-value {
-    margin-left: 8px;
+.zip-value,
+.glass-value {
+    margin-left: 15px;
+    font-weight: 400;
     font-size: 14px;
-    font-weight: bold;
-    color: #333;
+    color: #000000;
+}
+
+/* Titles */
+.zip-title,
+.glass-title {
+    margin-top: 10px;
+}
+
+.zip-title p,
+.glass-title p {
+    font-weight: 400;
+    font-size: 16px;
+    color: #000000;
+    margin: 0;
+}
+
+/* Images */
+.glass-image,
+.zip-image {
+    display: block;
+    margin: 0 auto 20px;
+    max-width: 40%;
 }
 
 /* Add-on Items */
 .addon-section {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 30px;
     margin-top: 20px;
+}
+
+.addon-container {
+    border: 2px solid #CFCFCF;
+    padding: 16px;
+    border-radius: 16px;
+    position: relative;
 }
 
 .addon-item {
     display: flex;
-    align-items: center;
-    background-color: var(--color-white);
-    padding: 8px;
-    border-radius: 12px;
-}
-.zip-image,
-.glass-image,
-.addon-image {
-    max-width: 30%;
-    padding: 5%;
+    flex-direction: column;
+    gap: 16px;
 }
 
-.addon-details {
+.addon-header {
     display: flex;
-    flex-direction: row;
+    justify-content: space-between;
     align-items: center;
-    gap: 15px;
-    margin-left: 10px;
 }
 
 .addon-label {
-    font-size: 14px;
+    font-size: 16px;
+    font-weight: 400;
+    color: #000000;
+}
+
+.addon-price {
+    font-size: 16px;
     font-weight: bold;
-    width: 80px;
+    color: #000000;
+}
+
+.addon-image {
+    width: 40%;
+    max-width: 398px;
+    height: auto;
+    object-fit: contain;
+    align-self: center;
+}
+
+.color-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.color-title {
+    font-size: 16px;
+    font-weight: 400;
+    color: #000000;
+}
+
+.color-title strong {
+    font-weight: bold;
+}
+
+.color-selector {
+    display: flex;
+    gap: 16px;
 }
 
 .addon-controls {
     display: flex;
+    justify-content: flex-end;
     align-items: center;
-    gap: 8px;
-}
-
-.addon-controls .color-selector {
-    display: flex;
-    gap: 8px;
-}
-
-.addon-controls .color-btn {
-    width: 25px;
-    height: 25px;
-    border-radius: 50%;
-    cursor: pointer;
-    border: 2px solid var(--color-gray);
-}
-
-.addon-controls .color-btn.selected {
-    border-color: var(--color-primary);
-}
-
-.addon-controls .color-btn.black {
-    background-color: var(--color-secondary);
-}
-
-.addon-controls .color-btn.white {
-    background-color: #f1f0ea;
 }
 
 .addon-control-btn {
-    width: 35px;
-    height: 35px;
-    background-color: var(--color-white);
-    border: none;
-    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    background-color: #FFFFFF;
+    border: 2.5px solid #FFFFFF;
+    border-radius: 8px;
     cursor: pointer;
-    position: relative;
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
 }
 
 .addon-control-btn::before {
     content: "";
     display: block;
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     position: absolute;
     top: 50%;
     left: 50%;
@@ -376,11 +487,7 @@ body {
     transition: background-color 0.3s;
 }
 
-.add-to-cart-btn:hover {
-    background-color: #333333;
-}
-
-/* Button Grid Section */
+/* Button Grid Sections */
 .adjacent-grid-section,
 .button-grid-section {
     display: grid;
@@ -389,10 +496,9 @@ body {
     margin-top: 10px;
 }
 
-/* Button Styling */
 .adjacent-btn,
 .grid-btn {
-    padding: 10px 10px;
+    padding: 10px;
     border: 2px solid var(--color-gray);
     background-color: var(--color-white);
     cursor: pointer;
@@ -402,21 +508,14 @@ body {
     text-align: center;
 }
 
-/* Hover and Active States */
 .adjacent-btn.active,
-.adjacent-btn:hover,
-.grid-btn:hover,
 .grid-btn.active {
     background-color: var(--color-white);
     color: var(--color-black);
     border-color: var(--color-primary);
 }
 
-/* Specific Styling for the Active Button */
-.adjacent-btn.active,
-.grid-btn.active {
-    border-color: var(--color-primary); /* This will change the border color for the active button */
-}
+/* Text Styles */
 .bold-text {
     font-weight: bold;
 }
@@ -424,36 +523,26 @@ body {
 .italic-text {
     font-style: italic;
     font-weight: normal;
-    margin-left: 2px; /* Adds a small space between "Placement" and "(optional)" */
+    margin-left: 2px;
 }
 
 h4 {
-    margin-bottom: 2px; /* Reduce space between the heading and the paragraph */
+    margin-bottom: 2px;
 }
 
-p {
-    margin-top: 11px;
-    margin-bottom: 0px;
-}
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+strong {
+    font-weight: bold;
 }
 
-body {
-    font-family: Arial, sans-serif;
-}
-
+/* Calculator Card Styles */
 .calculator-card {
     width: 350px;
-    background-color: #fff;
+    background-color: #F4F4F6;
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     position: relative;
     margin: 20px auto;
-    background-color: #F4F4F6;
 }
 
 .card-header {
@@ -532,31 +621,31 @@ ul li {
     cursor: pointer;
 }
 
-.add-button:hover {
-    background-color: #555;
-}
-
-/* Custom styles to match your theme */
-.calculator-card img {
-    max-width: 100%;
-    height: auto;
-}
-
-.calculator-content {
-    width: 50px;
-    height: 50px;
-    display: block;
-    margin: 0 auto 10px;
-}
+/* Calculator Wrapper */
 .calculator-wrapper {
     width: 100%;
     max-width: 400px;
-    margin: 0 auto;
+    margin-top: 8px;
     padding: 20px;
     border-radius: 15px;
     background-color: #f4f4f4;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease-in-out;
 }
+
+/* Collapsed Content */
+#calculator-content {
+    display: none;
+}
+
+/* Expanded Content */
+#calculator-content.expanded {
+    display: block;
+    margin-top: 20px;
+}
+
 
 #calculator-content {
     font-family: 'Arial', sans-serif;
@@ -566,7 +655,7 @@ ul li {
 
 #calculator-content p {
     margin: 0;
-    font-size: 16px;
+    font-size: 15px;
 }
 
 #calculator-content ul {
@@ -577,10 +666,6 @@ ul li {
 
 #calculator-content ul li {
     margin-bottom: 5px;
-}
-
-strong {
-    font-weight: bold;
 }
 
 .calculator-wrapper .total-price {
@@ -609,21 +694,144 @@ strong {
 
 .calculator-wrapper .footer-note {
     margin-top: 20px;
-    font-size: 12px;
+    font-size: 10px !important;
     color: #777;
-    text-align: center;
+    text-align: left;
 }
 
+
+/* Calculator Add Button */
+.calculator-add-btn {
+    width: 50px;
+    height: 50px;
+    background-color: transparent;
+    border: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+}
+
+.calculator-add-btn::before {
+    content: "";
+    display: block;
+    width: 45px;
+    height: 45px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+.calculator-add-btn[data-state="check"]::before {
+    background-image: url('check.png');
+}
+.calculator-add-btn[data-state="add"]::before {
+    background-image: url('add.png');
+}
+
+
+
+/* Existing CSS for Add to Cart Button */
+.add-to-cart-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: var(--color-black);
+    color: var(--color-white);
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    border-radius: 15px;
+    margin-top: 20px;
+    transition: background-color 0.3s;
+}
+
+
+/* Header Styles */
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+}
+
+.header-content p {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.total-price {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.optional {
+    font-style: italic;
+    color: #777;
+}
+
+.toggle-btn {
+    border: none;
+    background: transparent;
+    color: #0066cc;
+    cursor: pointer;
+    font-size: 16px;
+    text-decoration: underline;
+}
+
+.toggle-btn:focus {
+    outline: none;
+}
+
+/* Footer Note */
+.footer-note {
+    margin-top: 20px;
+    font-size: 12px;
+    color: #777;
+    text-align: left;
+}
 
 /* Responsive Design */
 @media (max-width: 768px) {
     .product-page-container {
         grid-template-columns: 1fr;
-        padding: 10px;
+        padding: 25px;
     }
 
     .product-images {
         height: 300px;
+        position: sticky;
+    }
+    .product-options{
+        position: static;
+    }
+    .addon-container {
+        position: static;
+    }
+    .addon-controls {
+        position: static;
+    }
+
+    .addon-section {
+        position:static;
+    }
+    
+
+    .addon-control-btn {
+        position: relative;
+        bottom: 16px;
+        right: 16px;
+        z-index: 1; /* Increase z-index for stacking within the addon container */
     }
 
     .add-to-cart-btn {
