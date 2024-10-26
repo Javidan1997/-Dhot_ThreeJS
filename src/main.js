@@ -25,7 +25,7 @@ import {
     setSelectedSize,
     toggleZip,
     selectedZips 
-} from './zip.js';
+} from '../src/zip.js';
 
 const params = {
     height: 15,   // Adjust as needed
@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const lightProbe = new THREE.LightProbe();
         scene.add(lightProbe);
     
-        rgbeLoader.load('rooftop_night_4k.hdr', (hdrTexture) => {
+        rgbeLoader.load('https://drive.google.com/file/d/1xcHuNoh_eVx1Z0hK6-M3wtl6eqNQZsPh/view?usp=sharing', (hdrTexture) => {
             hdrTexture.mapping = THREE.EquirectangularReflectionMapping;
             hdrTexture.encoding = THREE.LinearEncoding;
     
@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // controls.dampingFactor = 0.15;
     controls.enableZoom = true;
     controls.minPolarAngle = 0.9; // Limit upward rotation
-    controls.maxPolarAngle = 1.68; // Limit downward rotation
+    controls.maxPolarAngle = 1.7; // Limit downward rotation
     controls.maxDistance = 17
 
     const floorGeometry = new THREE.PlaneGeometry(400, 400);
@@ -163,14 +163,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const floor = new THREE.Mesh(floorGeometry, floorMaterial);
     floor.rotation.x = -Math.PI / 2; // Rotate the floor to lie flat
-    floor.position.y = -2.5; // Lower the floor slightly below the cube
+    floor.position.y = -2.3; // Lower the floor slightly below the cube
     floor.receiveShadow = true; // Enable shadows to be cast on the floor
     scene.add(floor);
     const gltfLoader = new GLTFLoader();
 
-    gltfLoader.load("https://cdn.shopify.com/3d/models/44f73190fc222ce5/floor.glb" || 'floor.glb' , (gltf) => {
+    gltfLoader.load( 'floor.glb' , (gltf) => {
         const ground = gltf.scene;
-        ground.scale.set(1.2, 31, 1);
+        ground.scale.set(1.2, 31, 1.1);
         ground.position.set(0, -2.3, -5.3);  // Adjust position as needed
         ground.rotation.x = -Math.PI / 2; // Rotate to lay flat
         ground.receiveShadow = true;
@@ -277,9 +277,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return sprite;
     }
 
-    const axesHelper = new THREE.AxesHelper(2); // The number represents the size of the helper (adjust as needed)
-    axesHelper.position.set(0, -1.99, -2.5); // Place the helper at the center of the floor
-    scene.add(axesHelper);
 
     const westLabel = createTextLabel('W', new THREE.Vector3(-4, -1.9, -2.5));  // West is along the negative X-axis
     const eastLabel = createTextLabel('E', new THREE.Vector3(4, -1.9, -2.5));   // East is along the positive X-axis
@@ -348,21 +345,142 @@ document.addEventListener('DOMContentLoaded', () => {
     let ledLight = null; // Reset the light reference
 
     const modelFiles = {
-        "10'x10'": "https://cdn.shopify.com/3d/models/fbce837a9b533b3a/10_x10_.glb" || "10' x 10'.glb",
-        "10'x14'": "https://cdn.shopify.com/3d/models/5c7d14240baf25e4/10_x_14_.glb" || "10' x 14'.glb",
-        "14'x14'": "https://cdn.shopify.com/3d/models/5ed5c085ae86a7da/14_x_14_.glb" || "14' x 14'.glb",
-        "14'x20'": "https://cdn.shopify.com/3d/models/0a0fce97e07ad9b0/14_x_20_.glb" || "14' x 20'.glb"
+        "10'x10'": "10' x 10'.glb",
+        "10'x14'": "10' x 14'.glb",
+        "14'x14'": "14' x 14'.glb",
+        "14'x20'": "14' x 20'.glb"
     };
     let rotatingParts = []; // Store parts to rotate
 
     let fanModel = null;
     const fanModelFiles = {
-        "10'x10'": "https://cdn.shopify.com/3d/models/549f0c309cad22da/Zonix_Fan_10_.glb" || "Zonix Fan  (10').glb",
-        "10'x14'": "https://cdn.shopify.com/3d/models/549f0c309cad22da/Zonix_Fan_10_.glb" || "Zonix Fan  (10').glb",
-        "14'x14'": "https://cdn.shopify.com/3d/models/ab7edc05cc5b9b55/Zonix_Fan_14_.glb" || "Zonix Fan  (14').glb",
-        "14'x20'": "https://cdn.shopify.com/3d/models/ab7edc05cc5b9b55/Zonix_Fan_14_.glb" || "Zonix Fan  (14').glb"
+        "10'x10'": "Zonix Fan  (10').glb",
+        "10'x14'": "Zonix Fan  (10').glb",
+        "14'x14'":  "Zonix Fan  (14').glb",
+        "14'x20'":  "Zonix Fan  (14').glb"
     };
+
+    // Add this code after your updateTotalPrice function
+
+    // Event listener for the Add to Cart button
+    // Variant IDs mapping based on options
+    // Variant IDs mapping based on options and sizes
     // Base Prices (example prices, modify accordingly)
+    // Configuration prices (used in the calculator)
+    const variantMaps = {
+        sizes: {
+            "10'x10'": '49275090338078',
+            "10'x14'": '49282184937758',
+            "14'x14'": '49282190868766',
+            "14'x20'": '49282193883422'
+        },
+        slides: {
+            "10'x10'": {
+                front: '49283736699166',
+                rear: '49283736699166',
+                left: '49283736699166',
+                right: '49283736699166'
+            },
+            "10'x14'": {
+                front: '49283734733086',
+                rear: '49283734733086',
+                left: '49283736699166',
+                right: '49283736699166'
+            },
+            "14'x14'": {
+                front: '49283734733086',
+                rear: '49283734733086',
+                left: '49283734733086',
+                right: '49283734733086'
+            },
+            "14'x20'": {
+                front: '49283731816734',
+                rear: '49283731816734',
+                left: '49283734733086',
+                right: '49283734733086'
+            }
+            
+        },
+        zips: {
+            "10'x10'": {
+                front: '49283742499102', // Replace with actual variant ID
+                rear: '49283742499102',
+                left: '49283742499102',
+                right: '49283742499102'
+            },
+            "10'x14'": {
+                front: '49283748921630',
+                rear: '49283748921630',
+                left: '49283742499102',
+                right: '49283742499102'
+            },
+            "14'x14'": {
+                front: '49283748921630',
+                rear: '49283748921630',
+                left: '49283748921630',
+                right: '49283748921630'
+            },
+            "14'x20'": {
+                front: '49283741974814',
+                rear: '49283741974814',
+                left: '49283748921630',
+                right: '49283748921630'
+            }
+        },
+        addons: {
+            "10'x10'": {
+                lighting: '49283749347614',
+                fan: '49283739156766',
+                heater: '49283737616670'
+            },
+            "10'x14'": {
+                lighting: '49283749347614',
+                fan: '49283739156766',
+                heater: '49283737616670'
+            },
+            "14'x14'": {
+                lighting: '49283749347614',
+                fan: '49283741122846',
+                heater: '49283737616670'
+            },
+            "14'x20'": {
+                lighting: '49283749347614',
+                fan: '49283741122846',
+                heater: '49283737616670'
+            }
+        },
+        configuration:49284245750046
+    };
+
+    const pergolaPrices_config = {
+        "10'x10'": 440,
+        "10'x14'": 500,
+        "14'x14'": 650,
+        "14'x20'": 700
+    };
+
+    const slidePrices_config = {
+        "10'x10'": 150,
+        "10'x14'": 200,
+        "14'x14'": 200,
+        "14'x20'": 300
+    };
+
+    const zipPrices_config = {
+        "10'x10'": 100,
+        "10'x14'": 150,
+        "14'x14'": 200,
+        "14'x20'": 200
+    };
+
+    // Accessory prices for configuration
+    const addonPrices_config = {
+        lighting: 250,
+        fan: 50,
+        heater: 50
+    };
+
+    // Actual product prices (used for total price and cart)
     const pergolaPrices = {
         "10'x10'": 4400,
         "10'x14'": 5000,
@@ -394,150 +512,348 @@ document.addEventListener('DOMContentLoaded', () => {
     // Selected configuration (initialize with no selection)
     let selectedSlides = { front: false, rear: false, left: false, right: false };
     let selectedAddons = { lighting: false, fan: false, heater: false };
+    let calculatorContent;
+    let toggleButton;
+    let isExpanded = false;
+    let isConfigIncluded = false;
+
+
+
+    // Function to calculate and display the configuration price (only for configuration)
+    function calculateConfigurationPrice() {
+        let configPrice = pergolaPrices_config[selectedSize];
     
-
-    // Function to calculate and display the total price
-    function updateTotalPrice() {
-        let totalPrice = 0;
-        
-        // Add pergola base price
-        totalPrice += pergolaPrices[selectedSize];
-
-        // Add slide prices
+        // Add slide config prices
         Object.keys(selectedSlides).forEach((side) => {
             if (selectedSlides[side]) {
-                totalPrice += slidePrices[selectedSize];
+                configPrice += slidePrices_config[selectedSize];
             }
         });
-
-        // Add zip prices
+    
+        // Add zip config prices
         Object.keys(selectedZips).forEach((side) => {
             if (selectedZips[side]) {
-                totalPrice += zipPrices[selectedSize];
+                configPrice += zipPrices_config[selectedSize];
             }
         });
-
-        // Add selected add-ons
+    
+        // Add selected add-ons config prices
         Object.keys(selectedAddons).forEach((addon) => {
             if (selectedAddons[addon]) {
-                totalPrice += addonPrices[addon];
+                configPrice += addonPrices_config[addon];
             }
         });
-        document.querySelector('.add-to-cart-btn').textContent = `Add To Cart $${totalPrice}`;
-
-        // Update the calculator content dynamically
-        // document.getElementById('calculator-content').innerHTML = `
-        //     <div class="header-icon">
-        //         <div>
-        //             <p><strong>Pergolade Tilt Pro</strong><br>${selectedSize} &nbsp;&nbsp;$${pergolaPrices[selectedSize]}</p>
-        //         </div>
-        //         <div>
-        //             <img src="calc.png" alt="icon">
-        //         </div>
-        //     </div>
-        //     <p><strong>Slider:</strong></p>
-        //     <ul>
-        //         ${Object.keys(selectedSlides).map(side => 
-        //             selectedSlides[side] ? `<li>${side.charAt(0).toUpperCase() + side.slice(1)}&nbsp;&nbsp;$${slidePrices[selectedSize]}</li>` : '').join('')}
-        //     </ul>
-        //     <p><strong>Screen:</strong></p>
-        //     <ul>
-        //         ${Object.keys(selectedZips).map(side => 
-        //             selectedZips[side] ? `<li>${side.charAt(0).toUpperCase() + side.slice(1)}&nbsp;&nbsp;$${zipPrices[selectedSize]}</li>` : '').join('')}
-        //     </ul>
-        //     <p><strong>Accessories:</strong></p>
-        //     <ul>
-        //         ${Object.keys(selectedAddons).map(addon => 
-        //             selectedAddons[addon] ? `<li>${addon.charAt(0).toUpperCase() + addon.slice(1)}&nbsp;&nbsp;$${addonPrices[addon]}</li>` : '').join('')}
-        //     </ul>
-        //     <div class="total-price">Total Price: $${totalPrice}</div>
-        //     <div class="footer-note">*Estimated price; final cost confirmed after thorough assessment of all factors.</div>
-        // `;
+    
+        return configPrice;
     }
-    // Add this code after your updateTotalPrice function
+    const calculatorAddButton = document.getElementById('calculator-add-btn');
+    toggleButton = document.getElementById('calculator-toggle-btn');
 
+    calculatorAddButton.addEventListener('click', () => {
+        // Toggle the data-state attribute
+        const currentState = calculatorAddButton.getAttribute('data-state');
+        if (currentState === 'add') {
+            calculatorAddButton.setAttribute('data-state', 'check');
+            isConfigIncluded = false;
+        } else {
+            calculatorAddButton.setAttribute('data-state', 'add');
+            isConfigIncluded = true;
+        }
+        updateTotalPrice()
+    });
+
+    toggleButton.addEventListener('click', () => {
+        isExpanded = !isExpanded;
+
+        if (isExpanded) {
+            calculatorContent.classList.add('expanded');
+            toggleButton.textContent = 'Hide installation price details';
+        } else {
+            calculatorContent.classList.remove('expanded');
+            toggleButton.textContent = 'Show installation price details';
+        }
+        updateTotalPrice()
+    });
+    
+    // Function to calculate and display the total price (base product + configuration)
+    function updateTotalPrice() {
+        let basePrice = pergolaPrices[selectedSize];
+    
+        // Add slide prices to basePrice
+        Object.keys(selectedSlides).forEach((side) => {
+            if (selectedSlides[side]) {
+                basePrice += slidePrices[selectedSize];
+            }
+        });
+    
+        // Add zip prices to basePrice
+        Object.keys(selectedZips).forEach((side) => {
+            if (selectedZips[side]) {
+                basePrice += zipPrices[selectedSize];
+            }
+        });
+    
+        // Add addon prices to basePrice
+        Object.keys(selectedAddons).forEach((addon) => {
+            if (selectedAddons[addon]) {
+                basePrice += addonPrices[addon];
+            }
+        });
+        
+
+        // Configuration price (for calculator display)
+        const configPrice = calculateConfigurationPrice();
+    
+        // Total price is the basePrice (since basePrice already includes all components)
+        let totalPrice = basePrice;
+    
+        // Update the calculator's displayed price in the header
+        const calculatorPriceElement = document.getElementById('calculator-price');
+        if (calculatorPriceElement) {
+            calculatorPriceElement.textContent = `$${configPrice}*`;
+        }
+
+        
+        if (isConfigIncluded) {
+            totalPrice += configPrice;
+        }
+    
+        // Update Add to Cart button to show total price
+        document.querySelector('.add-to-cart-btn').textContent = `Add To Cart $${totalPrice}`;
+    
+        // Preserve the 'expanded' class on 'calculatorContent'
+        let isCalculatorExpanded = calculatorContent && calculatorContent.classList.contains('expanded');
+        
+        calculatorContent = document.getElementById('calculator-content');
+
+    
+        // Update the calculator content dynamically to show only configuration prices
+        if (calculatorContent) {
+            calculatorContent.innerHTML = `
+                <div class="header-icon">
+                    <div>
+                        <p><strong>Pergolade Tilt Pro</strong><br>${selectedSize} &nbsp;&nbsp;$${pergolaPrices_config[selectedSize]}</p>
+                    </div>
+                    <div>
+                        <img src="calc.png" alt="icon">
+                    </div>
+                </div>
+                <p><strong>Slider:</strong></p>
+                <ul>
+                    ${Object.keys(selectedSlides).map(side => 
+                        selectedSlides[side] ? `<li>${side.charAt(0).toUpperCase() + side.slice(1)} &nbsp;&nbsp; $${slidePrices_config[selectedSize]}</li>` : '').join('')}
+                </ul>
+                <p><strong>Screen:</strong></p>
+                <ul>
+                    ${Object.keys(selectedZips).map(side => 
+                        selectedZips[side] ? `<li>${side.charAt(0).toUpperCase() + side.slice(1)} &nbsp;&nbsp; $${zipPrices_config[selectedSize]}</li>` : '').join('')}
+                </ul>
+                <p><strong>Accessories:</strong></p>
+                <ul>
+                    ${Object.keys(selectedAddons).map(addon => 
+                        selectedAddons[addon] ? `<li>${addon.charAt(0).toUpperCase() + addon.slice(1)} &nbsp;&nbsp; $${addonPrices_config[addon]}</li>` : '').join('')}
+                </ul>
+            `;
+    
+            // Restore the 'expanded' class if it was previously added
+            if (isCalculatorExpanded) {
+                calculatorContent.classList.add('expanded');
+            } else {
+                calculatorContent.classList.remove('expanded');
+            }
+        }
+    }
+    
     // Event listener for the Add to Cart button
     document.querySelector('.add-to-cart-btn').addEventListener('click', function(event) {
         event.preventDefault();
 
-        // Collect selected options
-        const selectedOptions = {
-            size: selectedSize,
-            slides: Object.keys(selectedSlides).filter(side => selectedSlides[side]),
-            zips: Object.keys(selectedZips).filter(side => selectedZips[side]),
-            addons: Object.keys(selectedAddons).filter(addon => selectedAddons[addon])
-        };
+        // Base price (includes all selected components)
+        let basePrice = pergolaPrices[selectedSize];
 
-        // Prepare line item properties
-        const properties = {};
-        properties['Size'] = selectedOptions.size;
-        if (selectedOptions.slides.length > 0) {
-            properties['Slides'] = selectedOptions.slides.join(', ');
-        }
-        if (selectedOptions.zips.length > 0) {
-            properties['Zips'] = selectedOptions.zips.join(', ');
-        }
-        if (selectedOptions.addons.length > 0) {
-            properties['Addons'] = selectedOptions.addons.join(', ');
-        }
-        properties['Total Price'] = document.querySelector('.add-to-cart-btn').textContent.replace('Add To Cart ', '');
+        // Add slide prices to basePrice
+        Object.keys(selectedSlides).forEach((side) => {
+            if (selectedSlides[side]) {
+                basePrice += slidePrices[selectedSize];
+            }
+        });
 
-        // Get the variant ID based on the selected size
-        const variantId = getVariantId(selectedSize);
+        // Add zip prices to basePrice
+        Object.keys(selectedZips).forEach((side) => {
+            if (selectedZips[side]) {
+                basePrice += zipPrices[selectedSize];
+            }
+        });
 
-        if (!variantId) {
+        // Add addon prices to basePrice
+        Object.keys(selectedAddons).forEach((addon) => {
+            if (selectedAddons[addon]) {
+                basePrice += addonPrices[addon];
+            }
+        });
+
+        // Configuration price (for reference)
+        const configPrice = calculateConfigurationPrice();
+
+        // Total price is the basePrice (since basePrice includes all)
+        const totalPrice = basePrice;
+
+        // Prepare items array for Shopify
+        const items = [];
+
+        // Base product
+        const baseVariantId = variantMaps.sizes[selectedSize];
+        if (!baseVariantId) {
             alert('Unable to add to cart: variant not found for the selected size.');
             return;
         }
 
-        // Prepare data to send to Shopify
-        const data = {
-            items: [{
-                id: variantId,
-                quantity: 1,
-                properties: properties
-            }]
+        // Collect properties for the base product
+        const baseProperties = {
+            'Size': selectedSize,
+            'Total Price': `$${totalPrice}`,
+            'Configuration Price': `$${configPrice}`
         };
 
-        // Send AJAX request to Shopify cart
-        fetch('/cart/add.js', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(err => { throw err; });
+        // Add base product to items array
+        items.push({
+            id: baseVariantId,
+            quantity: 1,
+            properties: baseProperties
+        });
+
+        // Add configuration options (slides, zips, addons)
+        Object.keys(selectedSlides).forEach(side => {
+            if (selectedSlides[side]) {
+                const variantId = variantMaps.slides[selectedSize][side];
+                if (variantId) {
+                    items.push({
+                        id: variantId,
+                        quantity: 1,
+                        properties: { 'Side': side.charAt(0).toUpperCase() + side.slice(1) }
+                    });
+                }
             }
-            return response.json();
-        })
-        .then(item => {
-            console.log('Item added to cart:', item);
-            // Optionally redirect to the cart page
-            window.location.href = '/cart';
-        })
-        .catch(error => {
-            console.error('Error adding item to cart:', error);
-            alert('An error occurred while adding the item to your cart. Please try again.');
+        });
+
+        Object.keys(selectedZips).forEach(side => {
+            if (selectedZips[side]) {
+                const variantId = variantMaps.zips[selectedSize][side];
+                if (variantId) {
+                    items.push({
+                        id: variantId,
+                        quantity: 1,
+                        properties: { 'Side': side.charAt(0).toUpperCase() + side.slice(1) }
+                    });
+                }
+            }
+        });
+
+        Object.keys(selectedAddons).forEach(addon => {
+            if (selectedAddons[addon]) {
+                const variantId = variantMaps.addons[selectedSize][addon];
+                if (variantId) {
+                    items.push({
+                        id: variantId,
+                        quantity: 1,
+                        properties: { 'Addon': addon.charAt(0).toUpperCase() + addon.slice(1) }
+                    });
+                }
+            }
+        });
+        const configVariantId = variantMaps.configuration; // Configuration Price variant ID
+        if (configVariantId) {
+            items.push({
+                id: configVariantId,
+                quantity: 1,
+                properties: {
+                    'Custom Price': `$${configPrice}`
+                },
+                selling_plan: null,
+                custom_price: configPrice * 100 // Price in cents
+            });
+        }
+
+        // Capture screenshot and upload
+        captureAndUploadScreenshot().then(imageUrl => {
+            if (imageUrl) {
+                // Add image URL to the base product properties
+                items[0].properties['Configuration Image'] = imageUrl;
+            }
+
+            // Prepare data to send to Shopify
+            const data = {
+                items: items
+            };
+
+            // Send AJAX request to Shopify cart
+            fetch('/cart/add.js', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw err; });
+                }
+                return response.json();
+            })
+            .then(item => {
+                console.log('Items added to cart:', item);
+                window.location.href = '/cart';
+            })
+            .catch(error => {
+                console.error('Error adding items to cart:', error);
+                alert('An error occurred while adding the items to your cart. Please try again.');
+            });
+        }).catch(error => {
+            console.error('Error capturing screenshot:', error);
+            alert('An error occurred while capturing the configuration image. Please try again.');
         });
     });
 
-    // Function to get the variant ID based on the selected size
-    function getVariantId(size) {
-        // Map size to variant ID
-        const variantMap = {
-            "10'x10'": 49275090338078, // Replace with your actual variant IDs
-            "10'x14'": 49282184937758,
-            "14'x14'": 49282190868766,
-            "14'x20'": 49282193883422
-        };
-        return variantMap[size];
+    function captureAndUploadScreenshot() {
+        return new Promise((resolve, reject) => {
+            try {
+                // Capture the canvas
+                const canvas = renderer.domElement;
+                canvas.toBlob(function(blob) {
+                    // Prepare FormData
+                    const formData = new FormData();
+                    formData.append('file', blob, 'configuration.png');
+
+                    // Upload the image to your server
+                    fetch('/upload-image', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(err => { throw err; });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // The server should return the image URL
+                        const imageUrl = data.imageUrl;
+                        resolve(imageUrl);
+                    })
+                    .catch(error => {
+                        console.error('Error uploading image:', error);
+                        resolve(null); // Proceed without image
+                    });
+                }, 'image/png');
+            } catch (error) {
+                console.error('Error capturing screenshot:', error);
+                resolve(null); // Proceed without image
+            }
+        });
     }
 
-        
+
 
 
     function updateButtonLabels(size) {
@@ -715,7 +1031,27 @@ document.addEventListener('DOMContentLoaded', () => {
             updateButtonLabels(selectedSize);
         });
     });
-    
+    function applyMaterialChange(targetObject, newMaterial) {
+        targetObject.traverse((child) => {
+            if (child.isMesh) {
+                child.material = newMaterial;
+            }
+        });
+    }
+    function applyMaterialChangeGlass(targetObject, selectedColor) {
+        const newMaterial = new THREE.MeshStandardMaterial({
+            color: selectedColor === 'black' ? 0x2B2B2B : 0xffffff,
+            roughness:0.7,
+            metalness:1
+            // flatShading: true,
+        });
+        targetObject.traverse((child) => {
+            if (child.isMesh  && child.name.includes('c8c8c8')) {
+                    child.material = newMaterial; // Apply new material
+            }
+            
+        });
+    }
 
     // Update the color button event listener
     document.querySelectorAll('.main-color-selector .color-btn').forEach((btn) => {
@@ -723,10 +1059,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (object) {
 
                 const selectedColor = event.target.classList.contains('black')
-                    ? 'black'
-                    : event.target.classList.contains('white')
-                    ? 'white'
-                    : 'black';
+                ? 'black'
+                : 'white';
 
                 currentColor = selectedColor;
                 setCurrentColor(currentColor);
@@ -736,50 +1070,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (selectedColor === 'black' || selectedColor === 'white') {
                     newMaterial = new THREE.MeshStandardMaterial({
                         color: selectedColor === 'black' ? 0x2B2B2B : 0xffffff,
-                        roughness:0.2,
+                        roughness:0.45,
                         metalness:1
                         // flatShading: true,
                     });
                 }
-
-                // Function to apply the material change to a specific object
-                function applyMaterialChange(targetObject) {
-                    targetObject.traverse((child) => {
-                        if (child.isMesh) {
-                            if (selectedColor != 'default') {
-                                child.material = newMaterial; // Apply new material
-                            }
-                        }
-                    });
-                }
-                function applyMaterialChangeGlass(targetObject) {
-                    newMaterial = new THREE.MeshStandardMaterial({
-                        color: selectedColor === 'black' ? 0x2B2B2B : 0xffffff,
-                        roughness:0.7,
-                        metalness:1
-                        // flatShading: true,
-                    });
-                    targetObject.traverse((child) => {
-                        if (child.isMesh) {
-                            // Apply new material or revert to original, excluding '3DGeom-25'
-                            if (selectedColor != 'default' && child.name.includes('c8c8c8')) {
-                                child.material = newMaterial; // Apply new material
-                            }
-                        }
-                    });
-                }
-
-                
-
                 // Traverse the main object and apply the material
-                applyMaterialChange(object);
-                applyMaterialChange(fanModel)
+                applyMaterialChange(object,newMaterial);
+                applyMaterialChange(fanModel,newMaterial);
 
-
-                if (frontGlass) applyMaterialChangeGlass(frontGlass);
-                if (rearGlass) applyMaterialChangeGlass(rearGlass);
-                if (leftGlass) applyMaterialChangeGlass(leftGlass);
-                if (rightGlass) applyMaterialChangeGlass(rightGlass);
+                if (frontGlass) applyMaterialChangeGlass(frontGlass,selectedColor);
+                if (rearGlass) applyMaterialChangeGlass(rearGlass,selectedColor);
+                if (leftGlass) applyMaterialChangeGlass(leftGlass,selectedColor);
+                if (rightGlass) applyMaterialChangeGlass(rightGlass,selectedColor);
 
                 if (frontZip) applyMaterialChangeZip(frontZip,selectedColor);
                 if (rearZip) applyMaterialChangeZip(rearZip,selectedColor);
@@ -796,10 +1099,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (fanModel) {
 
                 const selectedColor = event.target.classList.contains('black')
-                    ? 'black'
-                    : event.target.classList.contains('white')
-                    ? 'white'
-                    : 'black';
+                ? 'black'
+                : 'white';
 
                 // Define new material for the fan based on the selected color
                 let fanMaterial = new THREE.MeshStandardMaterial({
@@ -823,9 +1124,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     function setDefaultBlackMaterial(object) {
         if (object) {
-            let defaultMaterial = new THREE.MeshStandardMaterial({
+            const defaultMaterial = new THREE.MeshStandardMaterial({
                 color: currentColor === 'black' ? 0x2B2B2B : 0xffffff,
-                roughness:0.2,
+                roughness:0.45,
                 metalness:1
             });
 
@@ -840,7 +1141,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function setDefaultBlackMaterialGlass(object) {
         if (object) {
-            let defaultMaterial = new THREE.MeshStandardMaterial({
+            const defaultMaterial = new THREE.MeshStandardMaterial({
                 color: currentColor === 'black' ? 0x2B2B2B : 0xffffff,
                 roughness:0.7,
                 metalness:1
@@ -1043,9 +1344,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Mark the side as selected
                 selectedGlasses[side] = true;
+                setDefaultBlackMaterialGlass(newGlass);
                 updateSliderParts(newGlass);
                 animateGlassSliding(side);
-                setDefaultBlackMaterialGlass(newGlass);
+
+              
 
             });
         } else {
@@ -1139,39 +1442,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (selectedSize === "14'x20'") {
                     modelMap = {
-                        'front': "https://cdn.shopify.com/3d/models/0e9d9646a46a0da6/Sliding_Glass_6_.glb" || 'Sliding Glass (6).glb',
-                        'rear': "https://cdn.shopify.com/3d/models/0e9d9646a46a0da6/Sliding_Glass_6_.glb" || 'Sliding Glass (6).glb',
-                        'left': "https://cdn.shopify.com/3d/models/a2a6e46efaf6094c/Sliding_Glass_4_.glb" || 'Sliding Glass (4).glb',
-                        'right': "https://cdn.shopify.com/3d/models/a2a6e46efaf6094c/Sliding_Glass_4_.glb" || 'Sliding Glass (4).glb'
+                        'front':  'Sliding Glass (6).glb',
+                        'rear':  'Sliding Glass (6).glb',
+                        'left': 'Sliding Glass (4).glb',
+                        'right': 'Sliding Glass (4).glb'
                     };
                 } else if (selectedSize === "14'x14'") {
                     modelMap = {
-                        'front': "https://cdn.shopify.com/3d/models/a2a6e46efaf6094c/Sliding_Glass_4_.glb" || 'Sliding Glass (4).glb',
-                        'rear': "https://cdn.shopify.com/3d/models/a2a6e46efaf6094c/Sliding_Glass_4_.glb" || 'Sliding Glass (4).glb',
-                        'left': "https://cdn.shopify.com/3d/models/a2a6e46efaf6094c/Sliding_Glass_4_.glb" || 'Sliding Glass (4).glb',
-                        'right': "https://cdn.shopify.com/3d/models/a2a6e46efaf6094c/Sliding_Glass_4_.glb" || 'Sliding Glass (4).glb'
+                        'front': 'Sliding Glass (4).glb',
+                        'rear': 'Sliding Glass (4).glb',
+                        'left': 'Sliding Glass (4).glb',
+                        'right': 'Sliding Glass (4).glb'
                     };
                 } else if (selectedSize === "10'x14'") {
                     modelMap = {
-                        'front': "https://cdn.shopify.com/3d/models/a2a6e46efaf6094c/Sliding_Glass_4_.glb" || 'Sliding Glass (4).glb',
-                        'rear': "https://cdn.shopify.com/3d/models/a2a6e46efaf6094c/Sliding_Glass_4_.glb" || 'Sliding Glass (4).glb',
-                        'left': "https://cdn.shopify.com/3d/models/23c54ac1a966edb4/Sliding_Glass_3_.glb" || 'Sliding Glass (3).glb',
-                        'right': "https://cdn.shopify.com/3d/models/23c54ac1a966edb4/Sliding_Glass_3_.glb" || 'Sliding Glass (3).glb'
+                        'front': 'Sliding Glass (4).glb',
+                        'rear': 'Sliding Glass (4).glb',
+                        'left':  'Sliding Glass (3).glb',
+                        'right':  'Sliding Glass (3).glb'
                     };
                 } else if (selectedSize === "10'x10'") {
                     modelMap = {
-                        'front': "https://cdn.shopify.com/3d/models/23c54ac1a966edb4/Sliding_Glass_3_.glb" || 'Sliding Glass (3).glb',
-                        'rear': "https://cdn.shopify.com/3d/models/23c54ac1a966edb4/Sliding_Glass_3_.glb" || 'Sliding Glass (3).glb',
-                        'left': "https://cdn.shopify.com/3d/models/23c54ac1a966edb4/Sliding_Glass_3_.glb" || 'Sliding Glass (3).glb',
-                        'right': "https://cdn.shopify.com/3d/models/23c54ac1a966edb4/Sliding_Glass_3_.glb" || 'Sliding Glass (3).glb'
+                        'front':  'Sliding Glass (3).glb',
+                        'rear':  'Sliding Glass (3).glb',
+                        'left':  'Sliding Glass (3).glb',
+                        'right':  'Sliding Glass (3).glb'
                     };
                 }
                 
 
                 if (modelMap[side]) {
                     toggleSlidingGlass(side, modelMap[side]);
-                    // Mark the side as selected/deselected
-                    selectedSlides[side] = !selectedSlides[side];
                     updateTotalPrice();
 
                 }
@@ -1188,38 +1489,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (selectedSize === "14'x20'") {
                 modelMap = {
-                    'front': "https://cdn.shopify.com/3d/models/0e9d9646a46a0da6/Sliding_Glass_6_.glb" || 'Sliding Glass (6).glb',
-                    'rear': "https://cdn.shopify.com/3d/models/0e9d9646a46a0da6/Sliding_Glass_6_.glb" || 'Sliding Glass (6).glb',
-                    'left': "https://cdn.shopify.com/3d/models/a2a6e46efaf6094c/Sliding_Glass_4_.glb" || 'Sliding Glass (4).glb',
-                    'right': "https://cdn.shopify.com/3d/models/a2a6e46efaf6094c/Sliding_Glass_4_.glb" || 'Sliding Glass (4).glb'
+                    'front':  'Sliding Glass (6).glb',
+                    'rear':  'Sliding Glass (6).glb',
+                    'left': 'Sliding Glass (4).glb',
+                    'right': 'Sliding Glass (4).glb'
                 };
             } else if (selectedSize === "14'x14'") {
                 modelMap = {
-                    'front': "https://cdn.shopify.com/3d/models/a2a6e46efaf6094c/Sliding_Glass_4_.glb" || 'Sliding Glass (4).glb',
-                    'rear': "https://cdn.shopify.com/3d/models/a2a6e46efaf6094c/Sliding_Glass_4_.glb" || 'Sliding Glass (4).glb',
-                    'left': "https://cdn.shopify.com/3d/models/a2a6e46efaf6094c/Sliding_Glass_4_.glb" || 'Sliding Glass (4).glb',
-                    'right': "https://cdn.shopify.com/3d/models/a2a6e46efaf6094c/Sliding_Glass_4_.glb" || 'Sliding Glass (4).glb'
+                    'front': 'Sliding Glass (4).glb',
+                    'rear': 'Sliding Glass (4).glb',
+                    'left': 'Sliding Glass (4).glb',
+                    'right': 'Sliding Glass (4).glb'
                 };
             } else if (selectedSize === "10'x14'") {
                 modelMap = {
-                    'front': "https://cdn.shopify.com/3d/models/a2a6e46efaf6094c/Sliding_Glass_4_.glb" || 'Sliding Glass (4).glb',
-                    'rear': "https://cdn.shopify.com/3d/models/a2a6e46efaf6094c/Sliding_Glass_4_.glb" || 'Sliding Glass (4).glb',
-                    'left': "https://cdn.shopify.com/3d/models/23c54ac1a966edb4/Sliding_Glass_3_.glb" || 'Sliding Glass (3).glb',
-                    'right': "https://cdn.shopify.com/3d/models/23c54ac1a966edb4/Sliding_Glass_3_.glb" || 'Sliding Glass (3).glb'
+                    'front': 'Sliding Glass (4).glb',
+                    'rear': 'Sliding Glass (4).glb',
+                    'left':  'Sliding Glass (3).glb',
+                    'right':  'Sliding Glass (3).glb'
                 };
             } else if (selectedSize === "10'x10'") {
                 modelMap = {
-                    'front': "https://cdn.shopify.com/3d/models/23c54ac1a966edb4/Sliding_Glass_3_.glb" || 'Sliding Glass (3).glb',
-                    'rear': "https://cdn.shopify.com/3d/models/23c54ac1a966edb4/Sliding_Glass_3_.glb" || 'Sliding Glass (3).glb',
-                    'left': "https://cdn.shopify.com/3d/models/23c54ac1a966edb4/Sliding_Glass_3_.glb" || 'Sliding Glass (3).glb',
-                    'right': "https://cdn.shopify.com/3d/models/23c54ac1a966edb4/Sliding_Glass_3_.glb" || 'Sliding Glass (3).glb'
+                    'front':  'Sliding Glass (3).glb',
+                    'rear':  'Sliding Glass (3).glb',
+                    'left':  'Sliding Glass (3).glb',
+                    'right':  'Sliding Glass (3).glb'
                 };
             }
 
             if (modelMap[side]) {
                 toggleSlidingGlass(side, modelMap[side]);
-                // Mark the side as selected/deselected
-                selectedSlides[side] = !selectedSlides[side];
                 updateTotalPrice();
 
             }
