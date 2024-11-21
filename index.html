@@ -1,37 +1,199 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pergolade Tilt Pro</title>
-    <link rel="stylesheet" href="public/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-    
+    <link rel="stylesheet" href="style.css">
 
     <!-- Include Three.js library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
 </head>
-
 <body>
-
     <!-- Main Container -->
     <div class="product-page-container">
-        
         <!-- Left Section: Product Image -->
         <div class="product-images">
             <!-- 3D Model Viewer -->
-            <div class="three-js-container" id="three-js-container" aria-label="3D Model Viewer" style="width: 100%; height: 400px;">
+            <div class="three-js-container" id="three-js-container" aria-label="3D Model Viewer">
                 <script type="module" src="src/main.js"></script>
+                <div id="loading-screen-MainModel">
+                    <svg viewBox="0 0 100 100">
+                        <g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="6">
+                            <!-- left line -->
+                            <path d="M 21 40 V 59">
+                                <animateTransform
+                                    attributeName="transform"
+                                    attributeType="XML"
+                                    type="rotate"
+                                    values="0 21 59; 180 21 59"
+                                    dur="2s"
+                                    repeatCount="indefinite" />
+                            </path>
+                            <!-- right line -->
+                            <path d="M 79 40 V 59">
+                                <animateTransform
+                                    attributeName="transform"
+                                    attributeType="XML"
+                                    type="rotate"
+                                    values="0 79 59; -180 79 59"
+                                    dur="2s"
+                                    repeatCount="indefinite" />
+                            </path>
+                            <!-- top line -->
+                            <path d="M 50 21 V 40">
+                                <animate
+                                    attributeName="d"
+                                    values="M 50 21 V 40; M 50 59 V 40"
+                                    dur="2s"
+                                    repeatCount="indefinite" />
+                            </path>
+                            <!-- btm line -->
+                            <path d="M 50 60 V 79">
+                                <animate
+                                    attributeName="d"
+                                    values="M 50 60 V 79; M 50 98 V 79"
+                                    dur="2s"
+                                    repeatCount="indefinite" />
+                            </path>
+                            <!-- top box -->
+                            <path d="M 50 21 L 79 40 L 50 60 L 21 40 Z">
+                                <animate
+                                    attributeName="stroke"
+                                    values="rgba(255,255,255,1); rgba(100,100,100,0)"
+                                    dur="2s"
+                                    repeatCount="indefinite" />
+                            </path>
+                            <!-- mid box -->
+                            <path d="M 50 40 L 79 59 L 50 79 L 21 59 Z" />
+                            <!-- btm box -->
+                            <path d="M 50 59 L 79 78 L 50 98 L 21 78 Z">
+                                <animate
+                                    attributeName="stroke"
+                                    values="rgba(100,100,100,0); rgba(255,255,255,1)"
+                                    dur="2s"
+                                    repeatCount="indefinite" />
+                            </path>
+                            <animateTransform
+                                attributeName="transform"
+                                attributeType="XML"
+                                type="translate"
+                                values="0 0; 0 -19"
+                                dur="2s"
+                                repeatCount="indefinite" />
+                        </g>
+                    </svg>
+                </div>
+                <!-- Day/Night and Inside/Outside Toggles (Top Right Corner) -->
+                <div class="top-right-icons">
+                    <div class="inside-outside-toggle">
+                        <img src="https://cdn.shopify.com/s/files/1/0733/1410/7678/files/inside.png?v=1731355359" id="insideOutsideToggle" alt="Toggle Inside/Outside View" title="Toggle Inside/Outside View">
+                    </div>
+                    <div class="day-night-toggle">
+                        <img src="https://cdn.shopify.com/s/files/1/0733/1410/7678/files/moon-icon.png?v=1730462397" id="dayNightToggle" alt="Toggle Day/Night Mode" title="Toggle Day/Night Mode">
+                    </div>
+                    <div id="ar-button">
+                        <img src="https://cdn.shopify.com/s/files/1/0733/1410/7678/files/ar.png?v=1731355039" id="ar-button">
+                    </div>
+                    <model-viewer id="ar-model-viewer" ar ar-modes="webxr scene-viewer quick-look" camera-controls style="display: none;"></model-viewer>
+                </div>
+
+                <!-- Bottom Left Icons -->
+                <div class="bottom-left-icons">
+                    <!-- Model Icon -->
+                    <div class="icon-container" id="modelIconContainer">
+                        <img src="https://cdn.shopify.com/s/files/1/0733/1410/7678/files/main-icon.png?v=1731772541" id="modelIcon" alt="Rotate Louvered Slats" title="Rotate Louvered Slats">
+                    </div>
+                    <!-- Slider Icon -->
+                    <div class="icon-container" id="sliderIconContainer">
+                        <img src="https://cdn.shopify.com/s/files/1/0733/1410/7678/files/slider-icon.png?v=1731353905" id="sliderIcon" alt="Operate Glass Panels" title="Operate Glass Panels">
+                    </div>
+                    <!-- Zip Icon -->
+                    <div class="icon-container" id="zipIconContainer">
+                        <img src="https://cdn.shopify.com/s/files/1/0733/1410/7678/files/zip-icon.png?v=1731353905" id="zipIcon" alt="Roll Screen" title="Roll Screen">
+                    </div>
+                    <div class="icon-container" id="ledIconContainer">
+                        <img src="https://cdn.shopify.com/s/files/1/0733/1410/7678/files/led-icon.png?v=1731772542" id="ledIcon" alt="Led Lights" title="Adjust Led Lights">
+                    </div>
+                </div>
+
+                <!-- Sliders (Initially Hidden) -->
+                <!-- Rotation Slider -->
+                <div class="slider-popup" id="rotationSliderPopup">
+                    <div class="rotation-title">
+                        <p>Rotate louvered slats</p>
+                    </div>
+                    <button class="close-button" id="closeRotationSlider">×</button>
+                    <div class="rotation-slider-container">
+                        <span class="rotation-value-start">0°</span>
+                        <span class="rotation-value-end">90°</span>
+                    </div>
+                    <input type="range" id="rotationControl" class="rotation-slider" min="0" max="90" value="0">
+
+                </div>
+
+                <!-- Glass Slider -->
+                <div class="slider-popup" id="glassSliderPopup">
+                    <div class="glass-title">
+                        <p>Operate glass panels</p>
+                    </div>
+                    <button class="close-button" id="closeGlassSlider">×</button>
+                    <div class="glass-slider-container">
+                        <span class="glass-value-start">Open</span>
+                        <span class="glass-value-end">Closed</span>
+                        <span id="glassValue" class="glass-value" style="display: none;"></span>
+                    </div>
+                    <input type="range" id="glassControl" class="glass-slider" min="0" max="100" value="0">
+                </div>
+
+                <!-- Zip Slider -->
+                <div class="slider-popup" id="zipSliderPopup">
+                    <div class="zip-title">
+                        <p>Roll screen</p>
+                    </div>
+                    <button class="close-button" id="closeZipSlider">×</button>
+                    <div class="zip-slider-container">
+                        <span class="zip-value-start">Down</span>
+                        <span class="zip-value-end">Up</span>
+                        <span id="zipValue" class="zip-value" style="display: none;"></span>
+                    </div>
+                    <input type="range" id="zipControl" class="zip-slider" min="0" max="100" value="0">
+                </div>
+
+                <!-- LED Intensity Popup -->
+                <div class="slider-popup" id="ledIntensityPopup" style="display: none;">
+                    <div class="intensity-title">
+                        <p>Adjust LED Intensity</p>
+                    </div>
+                    <button class="close-button" id="closeLedIntensityPopup">×</button>
+                    <div class="intensity-slider-container">
+                            <span class="intensity-value-start">Bright</span>
+                            <span class="intensity-value-end">Dim</span>
+                    </div>
+                    <input type="range" id="ledIntensityControl" class="intensity-slider" min="0" max="100" value="50">
+                </div>
+
+                <!-- LED RGB Picker Popup -->
+                <div class="slider-popup" id="ledRgbPopup" style="display: none;">
+                    <div class="rgb-title">
+                        <p>Select LED Color</p>
+                    </div>
+                    <button class="close-button" id="closeLedRgbPopup">×</button>
+                    <div class="rgb-picker-container">
+                        <input type="color" id="ledRgbColorPicker" value="#ffffff">
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- Right Section: Product Details -->
         <div class="product-details">
             <h1 class="product-title">Pergolade Tilt Pro</h1>
-            <p class="price">$19,280</p>
+            <div class="product-description">From $9620 or $41.62/month for 24 months*</div>
 
             <!-- Rating Section -->
             <div class="rating">
@@ -47,101 +209,192 @@
 
             <!-- Description -->
             <p class="product-description">
-                Designed for everyday walking, standing, and mobility. It’s a leap in comfort for all-day wear.
+                Tilt Pro redefines outdoor living with unmatched durability and elegance. Engineered to withstand extreme weather, ensuring year-round comfort.
             </p>
 
-            <!-- Color Options -->
+            <!-- Options -->
+            <div class="options-text" >
+                <span class="black-text" >Finish.</span> 
+                <span  class="gray-text">What color best matches your outdoor space?</span>
+            </div>
             <div class="color-section">
-                <div class="color-title">Color: <strong>Black Charcoal</strong></div>
-                <div class="color-selector main-color-selector">
-                  <div class="color-container">
-                    <div class="color-btn black" ></div>
-                  </div>
-                  <div class="color-container">
-                    <div class="color-btn white"></div>
-                </div>
+                <div class="color-title-main">Color: <strong>Charcoal black</strong></div>
+                <div class="color-selector mainModel-color-selector">
+                    <div class="color-container">
+                        <div class="color-btn black"></div>
+                    </div>
+                    <div class="color-container">
+                        <div class="color-btn white"></div>
+                    </div>
                 </div>
             </div>
-              
-            
 
             <!-- Size Options -->
-            
             <div class="product-options">
-                <h3>Sizes</h3>
+                <div class="options-text" >
+                    <span class="black-text" >Size.</span> 
+                    <span  class="gray-text">What size best fits your outdoor space?</span>
+                </div>
                 <div class="size-options">
                     <div class="size-container">
-                        <button class="size-btn">10'x10'</button>
+                        <div class="left-content">
+                            <button class="size-btn">10'x10'</button>
+                            <span class="options-l" id="avilability">Available to ship</span>
+                            <span class="options-l" id="shipping-time">Dec. 20, 2024</span>
+                        </div>
+                        <div class="right-content">
+                            <span class="disc-price" id="size-discount-price">$9620</span>
+                            <span class="options-r" id="pay-over">or from $41.62/month</span>
+                            <span class="options-r" id="size-price">$40000</span>
+                        </div>
+                    </div>
+                    
+                    <div class="size-container">
+                        <div class="left-content">
+                            <button class="size-btn">10'x14'</button>
+                            <span class="options-l" id="avilability"></span>
+                            <span class="options-l" id="shipping-time"></span>
+                        </div>
+                        <div class="right-content">
+                            <span class="disc-price" id="size-discount-price">$9620</span>
+                            <span class="options-r" id="pay-over"></span>
+                            <span class="options-r" id="size-price">$40000</span>
+                        </div>
                     </div>
                     <div class="size-container">
-                        <button class="size-btn">10'x14'</button>
-                    </div>
-                    <div class="size-container">
-                        <button class="size-btn">14'x14'</button>
+                        <div class="left-content">
+                            <button class="size-btn">14'x14'</button>
+                            <span class="options-l" id="avilability">Out of stock</span>
+                            <span class="options-l" id="shipping-time"></span>
+                        </div>
+                        <div class="right-content">
+                            <span class="disc-price" id="size-discount-price">$9620</span>
+                            <span class="options-r" id="pay-over"></span>
+                            <span class="options-r" id="size-price"></span>
+                        </div>
                     </div>
                     <div class="size-container active">
-                        <button class="size-btn">14'x20'</button>
+                        <div class="left-content">
+                            <button class="size-btn">14'x20'</button>
+                            <span class="options-l" id="avilability">Ready to ship</span>
+                            <span class="options-l" id="shipping-time"></span>
+                        </div>
+                        <div class="right-content">
+                            <span class="disc-price" id="size-discount-price">$9620</span>
+                            <span class="options-r" id="pay-over"></span>
+                            <span class="options-r" id="size-price"></span>
+                        </div>
                     </div>
                 </div>
-                <div class="rotation-slider-container">
-                    <span class="rotation-value-start">0°</span>
-                    <input type="range" id="rotationControl" class="rotation-slider" min="0" max="90" value="0">
-                    <span class="rotation-value-end">90°</span>
-                  </div>
-                  <div class="rotation-title">
-                    <p>Rotate louvered slats</p>
-                </div>
             </div>
 
             <!-- Add-ons Section -->
-
-
             <div class="product-options">
-                <h4>Slider</h4>
-                <img src="glass.png" alt="Slider Glass" class="glass-image">
+                <div class="options-text" >
+                    <span class="black-text" >Slider.</span> 
+                    <span  class="gray-text">Select the sides to enclose with sliding glass doors. <em>(optional)</em></span>
+                </div>
+                <img src="https://cdn.shopify.com/s/files/1/0733/1410/7678/files/glass.png?v=1729438639" alt="Slider Glass" class="glass-image">
                 <div class="add-on-buttons">
-                    <button class="side-btn" data-side="front"><span>20' Front </span></button>
-                    <button class="side-btn" data-side="rear"><span>20' Rear</span> </button>
-                    <button class="side-btn" data-side="left"><span>14' Left</span> </button>
-                    <button class="side-btn" data-side="right"><span>14' Right</span> </button>
-                </div>
-                <!-- Glass Animation Container -->
-                <div class="glass-slider-container">
-                    <span class="glass-value-start">Open</span>
-                    <input type="range" id="glassControl" class="glass-slider" min="0" max="100" value="0">
-                    <span id="glassValue" class="glass-value"></span>
-                    <span class="glass-value-end">Closed</span>
-                </div>
-                <div class="glass-title">
-                    <p>Operate glass panels</p>
+                    <div class="add-on-buttons">
+                        <div class="side-container">
+                            <div class="left-content">
+                                <button class="side-btn" data-side="front">20' Front</button>
+                                <span class="options-l" id="availability">Available</span>
+                                <span class="options-l" id="shipping-time">Ships in 2 weeks</span>
+                            </div>
+                            <div class="right-content">
+                                <span class="disc-price" id="size-discount-price">$500</span>
+                            </div>
+                        </div>
+                        <div class="side-container">
+                            <div class="left-content">
+                                <button class="side-btn" data-side="rear">20' Rear</button>
+                                <span class="options-l" id="availability">Limited stock</span>
+                                <span class="options-l" id="shipping-time">Ships in 1 month</span>
+                            </div>
+                            <div class="right-content">
+                                <span class="disc-price" id="size-discount-price">$450</span>
+                            </div>
+                        </div>
+                        <div class="side-container">
+                            <div class="left-content">
+                                <button class="side-btn" data-side="left">14' Left</button>
+                                <span class="options-l" id="availability">Out of stock</span>
+                                <span class="options-l" id="shipping-time">Notify me</span>
+                            </div>
+                            <div class="right-content">
+                                <span class="disc-price" id="size-discount-price">$400</span>
+                            </div>
+                        </div>
+                        <div class="side-container">
+                            <div class="left-content">
+                                <button class="side-btn" data-side="right">14' Right</button>
+                                <span class="options-l" id="availability">In stock</span>
+                                <span class="options-l" id="shipping-time">Ships tomorrow</span>
+                            </div>
+                            <div class="right-content">
+                                <span class="disc-price" id="size-discount-price">$520</span>
+                            </div>
+                        </div>
                 </div>
 
-
-                <h4>Screen</h4>
-                <img src="zip.png" alt="Zip" class="zip-image">
+                <div class="options-text" >
+                    <span class="black-text" >Screen.</span> 
+                    <span  class="gray-text">Choose the sides to protect with motorized screens. <em>(optional)</em></span>
+                </div>
+                <img src="https://cdn.shopify.com/s/files/1/0733/1410/7678/files/zip.png?v=1729438639" alt="Zip" class="zip-image">
                 <div class="zip-buttons">
-                    <button class="zip-btn" data-zip="front"><span>20' Front</span> </button>
-                    <button class="zip-btn" data-zip="rear"><span>20' Rear</span> </button>
-                    <button class="zip-btn" data-zip="left"><span>14' Left</span> </button>
-                    <button class="zip-btn" data-zip="right"><span>14' Right</span> </button>
+                    <div class="zip-container">
+                        <div class="left-content">
+                            <button class="zip-btn" data-zip="front">20' Front</button>
+                            <span class="options-l" id="availability">Available</span>
+                            <span class="options-l" id="shipping-time">Ships in 2 weeks</span>
+                        </div>
+                        <div class="right-content">
+                            <span class="disc-price" id="zip-discount-price">$300</span>
+                        </div>
+                    </div>
+                    <div class="zip-container">
+                        <div class="left-content">
+                            <button class="zip-btn" data-zip="rear">20' Rear</button>
+                            <span class="options-l" id="availability">Limited stock</span>
+                            <span class="options-l" id="shipping-time">Ships in 1 month</span>
+                        </div>
+                        <div class="right-content">
+                            <span class="disc-price" id="zip-discount-price">$350</span>
+                        </div>
+                    </div>
+                    <div class="zip-container">
+                        <div class="left-content">
+                            <button class="zip-btn" data-zip="left">14' Left</button>
+                            <span class="options-l" id="availability">Out of stock</span>
+                            <span class="options-l" id="shipping-time">Notify me</span>
+                        </div>
+                        <div class="right-content">
+                            <span class="disc-price" id="zip-discount-price">$250</span>
+                        </div>
+                    </div>
+                    <div class="zip-container active">
+                        <div class="left-content">
+                            <button class="zip-btn" data-zip="right">14' Right</button>
+                            <span class="options-l" id="availability">In stock</span>
+                            <span class="options-l" id="shipping-time">Ships tomorrow</span>
+                        </div>
+                        <div class="right-content">
+                            <span class="disc-price" id="zip-discount-price">$320</span>
+                        </div>
+                    </div>
                 </div>
-                <!-- Zip Animation Container -->
-                <div class="zip-slider-container">
-                    <span class="zip-value-start">Up</span>
-                    <input type="range" id="zipControl" class="zip-slider" min="0" max="100" value="0">
-                    <span id="zipValue" class="zip-value"></span>
-                    <span class="zip-value-end">Down</span>
-                </div>
-                <div class="zip-title">
-                    <p>Roll screen</p>
-                </div>
-
+                
             </div>
 
-
             <!-- Add-ons Section -->
+            <div class="options-text" >
+                <span class="black-text" >Accessories.</span> 
+                <span  class="gray-text">Add lighting, fans, or heaters to enhance your comfort. <em>(optional)</em></span>
+            </div>
             <div class="product-options">
-                <h4>Accessories</h4>
                 <div class="addon-section">
                     <!-- Lighting Control -->
                     <div class="addon-container">
@@ -150,7 +403,16 @@
                                 <div class="addon-label">Perimeter LED lights</div>
                                 <div class="addon-price">$2,500</div>
                             </div>
-                            <img src="led.png" alt="Lighting" class="addon-image">
+                            <img src="https://cdn.shopify.com/s/files/1/0733/1410/7678/files/led.png?v=1729438639" alt="Lighting" class="addon-image">
+                            <div class="selected-color-title">Selected color: <strong id="selected-color">Warm White</strong></div>
+                            <div class="led-options">
+                                <div class="color-container" id="warm-light" data-color="Warm White">
+                                    <div class="color-circle warm"></div>
+                                </div>
+                                <div class="color-container" id="rgb-light" data-color="RGB">
+                                    <div class="color-circle rgb"></div>
+                                </div>
+                            </div>
                             <div class="addon-controls">
                                 <button class="addon-control-btn addon-add" data-addon="lighting" data-state="add"></button>
                             </div>
@@ -164,17 +426,15 @@
                                 <div class="addon-label">Ceiling fan</div>
                                 <div class="addon-price">$500</div>
                             </div>
-                            <img src="fan.png" alt="Fan" class="addon-image">
+                            <img src="https://cdn.shopify.com/s/files/1/0733/1410/7678/files/fan.png?v=1729438639" alt="Fan" class="addon-image">
                             <div class="color-section">
                                 <div class="color-title">Color: <strong>Black Charcoal</strong></div>
                                 <div class="color-selector fan-color-selector">
                                     <div class="color-container">
-                                        <div class="color-btn black">
-                                        </div>
+                                        <div class="color-btn black"></div>
                                     </div>
                                     <div class="color-container">
-                                        <div class="color-btn white">
-                                        </div>
+                                        <div class="color-btn white"></div>
                                     </div>
                                 </div>
                             </div>
@@ -191,17 +451,15 @@
                                 <div class="addon-label">Heater</div>
                                 <div class="addon-price">$500</div>
                             </div>
-                            <img src="heater.png" alt="Heater" class="addon-image">
+                            <img src="https://cdn.shopify.com/s/files/1/0733/1410/7678/files/heater.png?v=1729438639" alt="Heater" class="addon-image">
                             <div class="color-section">
-                                <div class="color-title">Color: <strong>Black Charcoal</strong></div>
+                                <div class="color-title-fan">Color: <strong>Charcoal black</strong></div>
                                 <div class="color-selector">
                                     <div class="color-container">
-                                        <div class="color-btn black">
-                                        </div>
+                                        <div class="color-btn black"></div>
                                     </div>
                                     <div class="color-container">
-                                        <div class="color-btn white">
-                                        </div>
+                                        <div class="color-btn white"></div>
                                     </div>
                                 </div>
                             </div>
@@ -212,67 +470,64 @@
                     </div>
                 </div>
 
-                    <!-- New Section: Button Group Example -->
-                <h4>
-                        <span class="bold-text">Placement</span>
-                        <a class="italic-text">(optional)</a>
-                </h4>
-                <p>Where do you want pergola placed?</p>
-                <div class="button-grid-section">
-                        <button class="grid-btn">By the pool</button>
-                        <button class="grid-btn">Over patio</button>
-                        <button class="grid-btn">Over deck</button>
-                        <button class="grid-btn active">Rooftop</button>
+                <!-- New Section: Button Group Example -->
+                <div class="options-text" >
+                    <span class="black-text" >Anchoring. </span> 
+                    <span  class="gray-text">How will your Tilt Pro be secured?</span>
                 </div>
-
-                
-                <p>Is the pergola freestanding or attached to adjacent structure?</p>
                 <div class="adjacent-grid-section">
-                        <button class="adjacent-btn">Freestanding</button>
-                        <button class="adjacent-btn active">Attached</button>
+                    <button class="adjacent-btn">Freestanding</button>
+                    <button class="adjacent-btn">Wall-mounted</button>
                 </div>
+                
+                <div class="options-text" >
+                    <span class="black-text" >Placement. </span> 
+                    <span  class="gray-text">Where do you want your pergola located? <i>(optional)</i></span>
+                </div>
+                <div class="button-grid-section">
+                    <button class="grid-btn">Pool</button>
+                    <button class="grid-btn">Over patio</button>
+                    <button class="grid-btn">Over deck</button>
+                    <button class="grid-btn">Rooftop</button>
+                </div>                
 
-            <h4>
-                <span class="bold-text">Surface</span>
-                <a class="italic-text">(optional)</a>
-            </h4>
-            <div class="button-grid-section">
-                    <button class="grid-btn">Concrete Slab</button>
-                    <button class="grid-btn">Composite wood deck</button>
-                    <button class="grid-btn">Stone pavers</button>
-                    <button class="grid-btn active">Footings required</button>
-            </div>
-
-            <div class="calculator-wrapper">
-                <div class="header" id="calculator-header">
-                    <div class="header-content">
-                        <p>Installation <span class="optional">(optional)</span></p>
-                        <p class="total-price" id="calculator-price">$6,300*</p>
+                <div class="calculator-wrapper">
+                    <div class="cw-header" id="calculator-header">
+                        <div class="cw-header-content">
+                            <p>Installation <span class="optional">(optional)</span></p>
+                            <p class="total-price" id="calculator-price">$6,300*</p>
+                        </div>
+                        <div class="gray-text"> Do you need professional installation?  </div>
+                        <div class="header-icon">
+                            <div>
+                                <img src="https://cdn.shopify.com/s/files/1/0733/1410/7678/files/calc.png?v=1729438639" alt="icon">
+                            </div>
+                        </div>
+                        <button class="toggle-btn" id="calculator-toggle-btn">Show installation price details</button>
                     </div>
-                    <button class="toggle-btn" id="calculator-toggle-btn">Show installation price details</button>
+                    <button class="calculator-add-btn" id="calculator-add-btn" data-state="check"></button>
+                    <div class="content" id="calculator-content">
+                        <!-- Dynamic content will be inserted here -->
+                    </div>
+                    <div class="footer-note">
+                        <p>Provided by Mankind Builders</p>
+                        <p class="disclaimer">*Estimated price; final cost confirmed after thorough assessment of all factors.</p>
+                    </div>
                 </div>
-                <!-- Add the new button here -->
-                <button class="calculator-add-btn" id="calculator-add-btn" data-state="check"></button>
-                <div class="content" id="calculator-content">
-                    <!-- Dynamic content will be inserted here -->
-                </div>
-                <div class="footer-note">
-                    <p>Provided by Mankind Builders</p>
-                    <p class="disclaimer">*Estimated price; final cost confirmed after thorough assessment of all factors.</p>
-                </div>
-            </div>
-            
-            
+
                 <!-- Add to Cart -->
                 <div class="pricing-section">
-                    <button class="add-to-cart-btn" aria-label="Add to Cart">Add To Cart $10,000</button>
+                    <button class="add-to-cart-btn" aria-label="Add to Cart">
+                        <span class="loader-icon" style="display: none;">
+                            <!-- Loader content (e.g., SVG or animated GIF) -->
+                            <img src="https://cdn.shopify.com/s/files/1/0733/1410/7678/files/add-to-cart-loader-ChHD_Q-g.gif?v=1730370876" alt="Loading..." />
+                        </span>
+                        <span class="button-text">Add To Cart $10,000</span>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
-
     <!-- Include the Three.js script after the DOM is fully loaded -->
-    
 </body>
-
 </html>
