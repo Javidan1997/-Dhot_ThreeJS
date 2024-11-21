@@ -3,7 +3,7 @@ import * as THREE from 'three';
 
 
 let currentColor = 'black';
-
+export let zipAnimationPartsBySide = {};
 export let frontZip = null, rearZip = null, leftZip = null, rightZip = null; // To store zip models for each side
 export const zipFilePaths = {
     front: null,
@@ -24,25 +24,29 @@ export function setCurrentColor(color) {
 }
 
 
-let scene, gltfLoader;
+let scene, gltfLoader,exportRoot
 let selectedSize; 
 let zipButtonsInitialized = false;
 
 export function removeAllZips() {
     if (frontZip) {
         scene.remove(frontZip);
+        exportRoot.remove(frontZip);
         frontZip = null;
     }
     if (rearZip) {
         scene.remove(rearZip);
+        exportRoot.remove(rearZip);
         rearZip = null;
     }
     if (leftZip) {
         scene.remove(leftZip);
+        exportRoot.remove(leftZip);
         leftZip = null;
     }
     if (rightZip) {
         scene.remove(rightZip);
+        exportRoot.remove(rightZip);
         rightZip = null;
     }
     selectedZips = {
@@ -54,9 +58,10 @@ export function removeAllZips() {
     zipAnimationParts = [];
 }
 
-export function initializeZipModule(_scene, _gltfLoader) {
+export function initializeZipModule(_scene, _gltfLoader,_exportRoot) {
     scene = _scene;
     gltfLoader = _gltfLoader;
+    exportRoot = _exportRoot;
 }
 export function setSelectedSize(size) {
     selectedSize = size;
@@ -65,13 +70,22 @@ export function setSelectedSize(size) {
 export function applyMaterialChangeZip(targetObject, selectedColor) {
     targetObject.traverse((child) => {
         if (child.isMesh) {
-            if (selectedColor != 'default' && child.name.includes('7e7e7e')) {
-                let newMaterial = new THREE.MeshStandardMaterial({
-                    color: currentColor === 'black' ? 0x2B2B2B : 0xF1F0EA,
+            if (child.name.includes('fad2a5')) {
+                let newMaterial = new THREE.MeshPhysicalMaterial({
+                    color: selectedColor === 'black' ? 0x212121 : 0xF1F0EA,
                     metalness: 0.9,
                     roughness: 0.5,
+                    side: THREE.DoubleSide 
                 });
                 child.material = newMaterial; // Apply new material
+            } else {
+                let transparentMaterial = new THREE.MeshPhysicalMaterial({
+                    color: 0xFAF9F6,
+                    transparent: true,
+                    opacity: 0.85,
+                    side: THREE.DoubleSide 
+                });
+                child.material = transparentMaterial;
             }
         }
     });
@@ -79,23 +93,33 @@ export function applyMaterialChangeZip(targetObject, selectedColor) {
 
 function setDefaultBlackMaterialZip(object) {
     if (object) {
-        let defaultMaterial = new THREE.MeshStandardMaterial({
-            color: currentColor === 'black' ? 0x2B2B2B : 0xF1F0EA,
+        let defaultMaterial = new THREE.MeshPhysicalMaterial({
+            color: currentColor === 'black' ? 0x212121 : 0xF1F0EA,
             metalness: 0.9,
             roughness: 0.5,
+            side: THREE.DoubleSide 
+        });
+        let transparentMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0xFAF9F6,
+            transparent: true,
+            opacity: 0.85,
+            side: THREE.DoubleSide 
         });
 
         // Apply default black material to all mesh children
         object.traverse((child) => {
-            if (child.isMesh && child.name.includes('7e7e7e')) {
+            if (child.isMesh && child.name.includes('fad2a5')) {
                 child.material = defaultMaterial; // Apply default black material-
+            } else {
+                child.material = transparentMaterial
+                
             }
         });
     }
 }
 
 export function updateZipParts(zipModel) {
-        selectableParts = {}; // Clear previous selectable parts
+        let selectableParts = {}; // Clear previous selectable parts
         zipModel.traverse((child) => {
             
             if (child.isMesh && child.material && child.material.color) {
@@ -123,10 +147,11 @@ export function toggleZip(side, filePath, selectedSize) {
             newZip.scale.set(1, 1, 1);
             positionZip(newZip, side, selectedSize);
             scene.add(newZip);
+            exportRoot.add(newZip);
 
-
-            // Gather all mesh children for sorting by y-position
+            // Initialize arrays
             let zipParts = [];
+            zipAnimationPartsBySide[side] = [];
 
             newZip.traverse((child) => {
                 child.receiveShadow = true;
@@ -136,20 +161,19 @@ export function toggleZip(side, filePath, selectedSize) {
                     const worldPosition = new THREE.Vector3();
                     child.getWorldPosition(worldPosition);
                     child.userData.worldY = worldPosition.y;
-                    zipParts.push(child); // Collect all zip parts
+                    child.userData.initialZ = child.position.z;
+                    child.userData.initialX = child.position.x;
+                    child.userData.initialY = child.position.y;
+
+                    zipParts.push(child);
                 }
             });
 
-            let sortedZipParts = zipParts.slice(); // Clone array to avoid mutating original
-            sortedZipParts.sort((a, b) => {
-                return a.userData.worldY - b.userData.worldY; // Sort based on worldY
-            });
+            let sortedZipParts = zipParts.slice().sort((a, b) => a.userData.worldY - b.userData.worldY);
 
-            // Assign names based on the sorted order
             sortedZipParts.forEach((child, index) => {
                 let materialName = "UnknownMaterial";
 
-                // Name based on material color or type
                 if (child.material.color) {
                     const color = child.material.color.getHexString();
                     materialName = `Color-${color}`;
@@ -157,19 +181,19 @@ export function toggleZip(side, filePath, selectedSize) {
                     materialName = `MaterialType-${child.material.type}`;
                 }
 
-                // Assign a name using material name and part order based on y-axis position
                 child.name = `${materialName}-zip-${index}`;
-                child.userData.index = index + 1; // index + 1 to start from 1
-                child.userData.initialZ = child.position.z; // Store initial Z position for animation
-                child.userData.initialX = child.position.x;
-                child.userData.initialY = child.position.y;
-                if (child.name.includes('efe4d4') || child.name.includes('7e7e7e-zip-0')) {
+                child.userData.index = index + 1;
+
+                // Add all parts to animation arrays
+                if (child.name.includes('efe4d4') || child.name.includes('zip-0')) {
                     zipAnimationParts.push(child);
+                    zipAnimationPartsBySide[side].push(child);
                 }
+                
             });
+
             setDefaultBlackMaterialZip(newZip);
 
-            zipFilePaths[side] = filePath;
             // Update zip model reference
             if (side === 'front') frontZip = newZip;
             if (side === 'rear') rearZip = newZip;
@@ -177,9 +201,22 @@ export function toggleZip(side, filePath, selectedSize) {
             if (side === 'right') rightZip = newZip;
 
             updateZipParts(newZip);
+
+            // Start the open animation (from closed to open), then close it
+            animateZipSliding(zipAnimationPartsBySide[side], true, () => {
+                animateZipSliding(zipAnimationPartsBySide[side], false);
+            });
         });
     } else {
+        // Remove zip model and its parts
+        // Remove zip parts from zipAnimationParts and zipAnimationPartsBySide
+        zipAnimationParts = zipAnimationParts.filter(part => part.parent !== zipModel);
+        delete zipAnimationPartsBySide[side];
+
         scene.remove(zipModel);
+        exportRoot.remove(zipModel);
+
+        // Remove the zip model reference
         if (side === 'front') frontZip = null;
         if (side === 'rear') rearZip = null;
         if (side === 'left') leftZip = null;
@@ -187,64 +224,65 @@ export function toggleZip(side, filePath, selectedSize) {
     }
 }
 
+
 function positionZip(zip, side,selectedSize) {
     // Use the same positions as the sliding glass
     if (selectedSize === "14'x20'") {
-        if (side === 'front') zip.position.set(0, -2, 0.08);
+        if (side === 'front') zip.position.set(0, -1.95, 0.08);
         if (side === 'rear'){
-            zip.position.set(0, -2, -4.45);
+            zip.position.set(0, -1.95, -4.45);
             zip.rotation.y = -Math.PI;
 
         } 
         if (side === 'left') {
-            zip.position.set(-3.2, -2, -2.18);
+            zip.position.set(-3.2, -1.95, -2.18);
             zip.rotation.y = -Math.PI / 2;
         }
         if (side === 'right') {
-            zip.position.set(3.2, -2, -2.18);
+            zip.position.set(3.2, -1.95, -2.161);
             zip.rotation.y = Math.PI / 2;
         }
     } else if (selectedSize === "14'x14'") {
-        if (side === 'front') zip.position.set(0, -2, 0.08);
+        if (side === 'front') zip.position.set(0, -1.95, 0.08);
         if (side === 'rear'){
-            zip.position.set(0, -2, -4.45);
+            zip.position.set(0, -1.95, -4.45);
             zip.rotation.y = -Math.PI;
 
         } 
         if (side === 'left') {
-            zip.position.set(-2.24, -2, -2.18);
+            zip.position.set(-2.24, -1.95, -2.18);
             zip.rotation.y = -Math.PI / 2;
         }
         if (side === 'right') {
-            zip.position.set(2.24, -2, -2.18);
+            zip.position.set(2.24, -1.95, -2.161);
             zip.rotation.y = Math.PI / 2;
         }
     } else if (selectedSize === "10'x14'") {
-        if (side === 'front') zip.position.set(0, -2, 0.08);
+        if (side === 'front') zip.position.set(0, -1.95, 0.08);
         if (side === 'rear') {
-            zip.position.set(0, -2, -3.20);
+            zip.position.set(0, -1.95, -3.20);
             zip.rotation.y = -Math.PI; 
         }
         if (side === 'left') {
-            zip.position.set(-2.24, -2, -1.55);
+            zip.position.set(-2.24, -1.95, -1.58);
             zip.rotation.y = -Math.PI / 2;
         }
         if (side === 'right') {
-            zip.position.set(2.24, -2, -1.55);
+            zip.position.set(2.24, -1.95, -1.55);
             zip.rotation.y = Math.PI / 2;
         }
     } else if (selectedSize === "10'x10'") {
-        if (side === 'front') zip.position.set(0, -2, 0.08);
+        if (side === 'front') zip.position.set(0, -1.95, 0.08);
         if (side === 'rear') {
-            zip.position.set(0, -2, -3.20);
+            zip.position.set(0, -1.95, -3.20);
             zip.rotation.y = -Math.PI; 
         }
         if (side === 'left') {
-            zip.position.set(-1.63, -2, -1.55);
+            zip.position.set(-1.63, -1.95, -1.58);
             zip.rotation.y = -Math.PI / 2;
         }
         if (side === 'right') {
-            zip.position.set(1.63, -2, -1.55);
+            zip.position.set(1.63, -1.95, -1.55);
             zip.rotation.y = Math.PI / 2;
         }
     }
@@ -258,31 +296,31 @@ export function updateSelectedZips(selectedSize) {
 
             if (selectedSize === "14'x20'") {
                 modelMap = {
-                    'front': "https://cdn.shopify.com/3d/models/f797a4040efbc6f2/Zip_6.glb" || 'Zip 3.glb',
-                    'rear': "https://cdn.shopify.com/3d/models/f797a4040efbc6f2/Zip_6.glb" || 'Zip 3.glb',
-                    'left': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb',
-                    'right': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb'
+                    'front': "https://cdn.shopify.com/3d/models/1df6540415fd99c6/Zip_20_.glb",
+                    'rear': "https://cdn.shopify.com/3d/models/1df6540415fd99c6/Zip_20_.glb",
+                    'left': "https://cdn.shopify.com/3d/models/8ff65871bb1267e8/Zip_14_.glb",
+                    'right': "https://cdn.shopify.com/3d/models/8ff65871bb1267e8/Zip_14_.glb"
                 };
             } else if (selectedSize === "14'x14'") {
                 modelMap = {
-                    'front': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb',
-                    'rear': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb',
-                    'left': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb',
-                    'right': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb'
+                    'front': "https://cdn.shopify.com/3d/models/8ff65871bb1267e8/Zip_14_.glb",
+                    'rear': "https://cdn.shopify.com/3d/models/8ff65871bb1267e8/Zip_14_.glb",
+                    'left': "https://cdn.shopify.com/3d/models/8ff65871bb1267e8/Zip_14_.glb",
+                    'right': "https://cdn.shopify.com/3d/models/8ff65871bb1267e8/Zip_14_.glb"
                 };
             } else if (selectedSize === "10'x14'") {
                 modelMap = {
-                    'front': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb',
-                    'rear': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb',
-                    'left': "https://cdn.shopify.com/3d/models/6538d71a5e0d48ea/Zip_3.glb" || 'Zip 3.glb',
-                    'right': "https://cdn.shopify.com/3d/models/6538d71a5e0d48ea/Zip_3.glb" || 'Zip 3.glb'
+                    'front': "https://cdn.shopify.com/3d/models/8ff65871bb1267e8/Zip_14_.glb",
+                    'rear': "https://cdn.shopify.com/3d/models/8ff65871bb1267e8/Zip_14_.glb",
+                    'left': "https://cdn.shopify.com/3d/models/047978d510ad23b0/Zip_10_.glb",
+                    'right': "https://cdn.shopify.com/3d/models/047978d510ad23b0/Zip_10_.glb"
                 };
             } else if (selectedSize === "10'x10'") {
                 modelMap = {
-                    'front': "https://cdn.shopify.com/3d/models/6538d71a5e0d48ea/Zip_3.glb" || 'Zip 3.glb',
-                    'rear': "https://cdn.shopify.com/3d/models/6538d71a5e0d48ea/Zip_3.glb" || 'Zip 3.glb',
-                    'left': "https://cdn.shopify.com/3d/models/6538d71a5e0d48ea/Zip_3.glb" || 'Zip 3.glb',
-                    'right': "https://cdn.shopify.com/3d/models/6538d71a5e0d48ea/Zip_3.glb" || 'Zip 3.glb'
+                    'front': "https://cdn.shopify.com/3d/models/047978d510ad23b0/Zip_10_.glb",
+                    'rear': "https://cdn.shopify.com/3d/models/047978d510ad23b0/Zip_10_.glb" ,
+                    'left': "https://cdn.shopify.com/3d/models/047978d510ad23b0/Zip_10_.glb",
+                    'right': "https://cdn.shopify.com/3d/models/047978d510ad23b0/Zip_10_.glb" 
                 };
             }
     
@@ -309,31 +347,31 @@ export function setupZipButtons() {
             // Update modelMap to include Zips (Zip 6.glb, Zip 4.glb, Zip 3.glb)
             if (selectedSize === "14'x20'") {
                 modelMap = {
-                    'front': "https://cdn.shopify.com/3d/models/f797a4040efbc6f2/Zip_6.glb" || 'Zip 3.glb',
-                    'rear': "https://cdn.shopify.com/3d/models/f797a4040efbc6f2/Zip_6.glb" || 'Zip 3.glb',
-                    'left': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb',
-                    'right': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb'
+                    'front': "https://cdn.shopify.com/3d/models/1df6540415fd99c6/Zip_20_.glb",
+                    'rear': "https://cdn.shopify.com/3d/models/1df6540415fd99c6/Zip_20_.glb",
+                    'left': "https://cdn.shopify.com/3d/models/8ff65871bb1267e8/Zip_14_.glb",
+                    'right': "https://cdn.shopify.com/3d/models/8ff65871bb1267e8/Zip_14_.glb"
                 };
             } else if (selectedSize === "14'x14'") {
                 modelMap = {
-                    'front': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb',
-                    'rear': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb',
-                    'left': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb',
-                    'right': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb'
+                    'front': "https://cdn.shopify.com/3d/models/8ff65871bb1267e8/Zip_14_.glb",
+                    'rear': "https://cdn.shopify.com/3d/models/8ff65871bb1267e8/Zip_14_.glb",
+                    'left': "https://cdn.shopify.com/3d/models/8ff65871bb1267e8/Zip_14_.glb",
+                    'right': "https://cdn.shopify.com/3d/models/8ff65871bb1267e8/Zip_14_.glb"
                 };
             } else if (selectedSize === "10'x14'") {
                 modelMap = {
-                    'front': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb',
-                    'rear': "https://cdn.shopify.com/3d/models/650348451f1c427b/Zip_4.glb" || 'Zip 3.glb',
-                    'left': "https://cdn.shopify.com/3d/models/6538d71a5e0d48ea/Zip_3.glb" || 'Zip 3.glb',
-                    'right': "https://cdn.shopify.com/3d/models/6538d71a5e0d48ea/Zip_3.glb" || 'Zip 3.glb'
+                    'front': "https://cdn.shopify.com/3d/models/8ff65871bb1267e8/Zip_14_.glb",
+                    'rear': "https://cdn.shopify.com/3d/models/8ff65871bb1267e8/Zip_14_.glb",
+                    'left': "https://cdn.shopify.com/3d/models/047978d510ad23b0/Zip_10_.glb",
+                    'right': "https://cdn.shopify.com/3d/models/047978d510ad23b0/Zip_10_.glb"
                 };
             } else if (selectedSize === "10'x10'") {
                 modelMap = {
-                    'front': "https://cdn.shopify.com/3d/models/6538d71a5e0d48ea/Zip_3.glb" || 'Zip 3.glb',
-                    'rear': "https://cdn.shopify.com/3d/models/6538d71a5e0d48ea/Zip_3.glb" || 'Zip 3.glb',
-                    'left': "https://cdn.shopify.com/3d/models/6538d71a5e0d48ea/Zip_3.glb" || 'Zip 3.glb',
-                    'right': "https://cdn.shopify.com/3d/models/6538d71a5e0d48ea/Zip_3.glb" || 'Zip 3.glb'
+                    'front': "https://cdn.shopify.com/3d/models/047978d510ad23b0/Zip_10_.glb",
+                    'rear': "https://cdn.shopify.com/3d/models/047978d510ad23b0/Zip_10_.glb",
+                    'left': "https://cdn.shopify.com/3d/models/047978d510ad23b0/Zip_10_.glb",
+                    'right': "https://cdn.shopify.com/3d/models/047978d510ad23b0/Zip_10_.glb"
                 };
             }
     
@@ -388,4 +426,72 @@ export function setupZipControl(zipControlElement, selectedSize) {
             }
         });
     });
+}
+
+function animateZipSliding(parts, isOpening = true, onComplete) {
+    if (!parts || parts.length === 0) {
+        console.log("No parts provided for animation."); // Debug log for empty parts array
+        if (onComplete) onComplete();
+        return;
+    }
+
+    console.log("Starting animation with parts:", parts); // Log the parts array
+    console.log("Animation type:", isOpening ? "Opening" : "Closing");
+
+    const initialMaxMovement = 100;
+    const maxMovement = initialMaxMovement;
+
+    let startTime = performance.now();
+    let duration = 3000; // Animation duration in milliseconds
+
+    function animate(time) {
+        let elapsed = time - startTime;
+        let progress = Math.min(elapsed / duration, 1);
+
+        console.log("Elapsed time:", elapsed, "Progress:", progress); // Log animation timing details
+
+        // Calculate slideAmount based on whether it's opening or closing
+        let slideAmount = isOpening ? progress : 1 - progress; // From 0 to 1 or 1 to 0
+        console.log("Slide amount:", slideAmount); // Log the slideAmount for debugging
+
+        // Apply movement logic to the provided parts
+        parts.forEach((part, index) => {
+            if (!part.geometry.boundingBox) {
+                part.geometry.computeBoundingBox(); // Ensure bounding box is up to date
+                console.log(`Bounding box computed for part ${index}:`, part.geometry.boundingBox);
+            }
+
+            if (part.name.includes('efe4d4')) {
+                // Animate scale for specific parts
+                part.scale.z = 1 - slideAmount;
+
+                const height = part.geometry.boundingBox.max.z - part.geometry.boundingBox.min.z;
+                const deltaZ = height * (1 - part.scale.z);
+                part.position.z = part.userData.initialZ + deltaZ;
+
+                console.log(
+                    `Animating scale for part ${index}:`,
+                    `Scale Z: ${part.scale.z}, Position Z: ${part.position.z}`
+                );
+            } else {
+                // Uniform movement for other parts
+                const movementLimit = slideAmount * maxMovement;
+                part.position.z = part.userData.initialZ + movementLimit;
+
+                console.log(
+                    `Animating movement for part ${index}:`,
+                    `Position Z: ${part.position.z}`
+                );
+            }
+        });
+
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        } else {
+            console.log("Animation complete."); // Log when animation completes
+            if (onComplete) onComplete();
+        }
+    }
+
+    requestAnimationFrame(animate);
 }
