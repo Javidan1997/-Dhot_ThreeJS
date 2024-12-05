@@ -2,10 +2,6 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
-import { ARButton } from 'three/examples/jsm/webxr/ARButton.js';
-import { GroundedSkybox } from 'three/examples/jsm/objects/GroundedSkybox.js'; 
-import { LightProbeGenerator } from 'three/examples/jsm/lights/LightProbeGenerator.js';
-import { USDZExporter } from 'three/examples/jsm/exporters/USDZExporter.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { Sky } from 'three/examples/jsm/objects/Sky.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
@@ -61,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     container.appendChild(renderer.domElement);
     let currentSkybox = null;
-    let pool, rooftop
+    let pool, rooftop, ground;
 
 
     // Functions to load environments
@@ -79,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const pmremGenerator = new THREE.PMREMGenerator(renderer);
 
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 0.7;
+        renderer.toneMappingExposure = 1;
 
         scene.background = new THREE.Color(0xB9B9D2);
         scene.environment = pmremGenerator.fromScene(environment).texture;
@@ -101,12 +97,26 @@ document.addEventListener('DOMContentLoaded', () => {
         if (pool) {
             scene.remove(pool);
         }
+        if (sunbed) {
+            scene.remove(sunbed);
+        }
+
+        if (ground) {
+            scene.remove(ground);
+        }
+
+        if (patio) {
+            scene.remove(patio);
+        }
+        if (poolwall) {
+            scene.remove(poolwall);
+        }
     
         const rgbeLoader = new RGBELoader();
         const gltfLoader = new GLTFLoader();
     
         rgbeLoader.load(
-            'https://cdn.shopify.com/s/files/1/0733/1410/7678/files/business_district_square_2k.hdr?v=1731750617',
+            'https://cdn.shopify.com/s/files/1/0733/1410/7678/files/autumn_field_puresky_4k.hdr?v=1732880715',
             (hdrTexture) => {
                 hdrTexture.mapping = THREE.EquirectangularReflectionMapping;
                 hdrTexture.encoding = THREE.sRGBEncoding;
@@ -121,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Tone mapping and renderer setup for better exposure and realism
                 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-                renderer.toneMappingExposure = 0.65; // Adjust for improved brightness and contrast
+                renderer.toneMappingExposure = 1; // Adjust for improved brightness and contrast
 
                 // Dispose PMREMGenerator (keep hdrTexture as background)
                 pmremGenerator.dispose();
@@ -137,7 +147,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Position the HDR sphere for alignment
                 sphere.position.set(0, -50, 0); // Adjust Y-axis to position HDRI "floor"
-                sphere.scale.set(1.1, 1, 1.1); // Slight stretch for better perspective alignment
+                sphere.scale.set(0.5, 0.5, 0.5); // Slight stretch for better perspective alignment
+                sphere.rotation.y = Math.PI;
 
                 scene.add(sphere);
 
@@ -145,10 +156,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
                 // Load the Rooftop.glb and position it below the model
                 gltfLoader.load(
-                    'https://cdn.shopify.com/3d/models/95de18392f07d9c9/Rooftop_genish.glb',
+                    'https://cdn.shopify.com/3d/models/366bf1d7bdd5b480/Rooftop_Model.glb',
                     (gltf) => {
                         rooftop = gltf.scene;
-                        rooftop.position.set(0, -1.89, 2); // Adjust position as needed
+                        rooftop.position.set(0, -2, 2); // Adjust position as needed
                         rooftop.rotation.y = Math.PI / 2 // Place rooftop slightly below the main model
                         rooftop.scale.set(1.5, 1.5, 1.5);
     
@@ -177,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         );
     }
-
+    let sunbed,patio;
 
     function loadPoolEnvironment() {
         // Clean up existing environment and background
@@ -193,11 +204,29 @@ document.addEventListener('DOMContentLoaded', () => {
         if (rooftop) {
             scene.remove(rooftop);
         }
+        if (attachwall) {
+            scene.remove(attachwall);
+        }
+
+        if (poolwall) {
+            scene.remove(poolwall);
+        }
+        if (sunbed) {
+            scene.remove(sunbed);
+        }
+
+        if (ground) {
+            scene.remove(ground);
+        }
+
+        if (patio) {
+            scene.remove(patio);
+        }
         const rgbeLoader = new RGBELoader();
         const gltfLoader = new GLTFLoader();
     
         rgbeLoader.load(
-            'https://cdn.shopify.com/s/files/1/0733/1410/7678/files/belfast_sunset_puresky_4k.hdr?v=1731774455',
+            'https://cdn.shopify.com/s/files/1/0733/1410/7678/files/autumn_field_puresky_4k.hdr?v=1732880715',
             (hdrTexture) => {
                 hdrTexture.mapping = THREE.EquirectangularReflectionMapping;
                 hdrTexture.encoding = THREE.sRGBEncoding;
@@ -212,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Tone mapping and renderer setup for better exposure and realism
                 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-                renderer.toneMappingExposure = 0.5; // Adjust for improved brightness and contrast
+                renderer.toneMappingExposure = 1; // Adjust for improved brightness and contrast
 
                 // Dispose PMREMGenerator (keep hdrTexture as background)
                 pmremGenerator.dispose();
@@ -228,18 +257,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Position the HDR sphere for alignment
                 sphere.position.set(0, -50, 0); // Adjust Y-axis to position HDRI "floor"
-                sphere.scale.set(1.1, 1, 1.1); // Slight stretch for better perspective alignment
+                sphere.scale.set(0.5, 0.5, 0.5); // Slight stretch for better perspective alignment
+                sphere.rotation.y = Math.PI;
 
                 scene.add(sphere);
 
                 console.log('HDRI environment set up with enhanced quality and positioning.');
+                // const frontLight = new THREE.DirectionalLight(0xffffff, 1.2); // Bright white light
+                // frontLight.position.set(0, 5, 10); // Positioned in front of the model
+                // frontLight.target.position.set(0, 0, 0); // Pointing towards the model's center
+                // frontLight.castShadow = true; // Enable shadows
+
+                // // Configure shadow properties
+                // frontLight.shadow.mapSize.width = 1024; // High-resolution shadow
+                // frontLight.shadow.mapSize.height = 1024;
+                // frontLight.shadow.camera.near = 1;
+                // frontLight.shadow.camera.far = 50;
+
+                // scene.add(frontLight);
+                // scene.add(frontLight.target); 
     
                 // Load the Rooftop.glb and position it below the model
                 gltfLoader.load(
-                    'https://cdn.shopify.com/3d/models/763858be099b9518/Pool.glb',
+                    'https://cdn.shopify.com/3d/models/8a06f7301696f147/Pool_new.glb',
                     (gltf) => {
                         pool = gltf.scene;
-                        pool.position.set(0, -1.92, 1.5); // Adjust position as needed
+                        pool.position.set(0, -2, 1.5); // Adjust position as needed
                         pool.rotation.y = Math.PI / 2 // Place pool slightly below the main model
                         pool.scale.set(0.9, 0.9, 0.9);
     
@@ -261,6 +304,33 @@ document.addEventListener('DOMContentLoaded', () => {
                         console.error('Error loading pool model:', error);
                     }
                 );
+
+                gltfLoader.load(
+                    'https://cdn.shopify.com/3d/models/393e38c3981870a5/Sunbed.glb',
+                    (gltf) => {
+                        sunbed = gltf.scene;
+                        sunbed.position.set(0, -2, 0.5); // Adjust position as needed
+                        sunbed.rotation.y = Math.PI / 2 // Place sunbed slightly below the main model
+                        sunbed.scale.set(1,1,1);
+    
+                        sunbed.traverse((child) => {
+                            if (child.isMesh) {
+                                child.castShadow = true;
+                                child.receiveShadow = true;
+                                if (child.material) {
+                                    child.material.needsUpdate = true;
+                                }
+                            }
+                        });
+    
+                        scene.add(sunbed);
+                        console.log('sunbed model loaded and positioned below the main model.');
+                    },
+                    undefined,
+                    (error) => {
+                        console.error('Error loading sunbed model:', error);
+                    }
+                );
             },
             undefined,
             (error) => {
@@ -271,10 +341,162 @@ document.addEventListener('DOMContentLoaded', () => {
     
     
     
+    function loadPatioEnvironment() {
+        // Clean up existing environment and background
+        if (scene.environment) {
+            scene.environment.dispose && scene.environment.dispose();
+            scene.environment = null;
+        }
+        if (scene.background) {
+            scene.background.dispose && scene.background.dispose();
+            scene.background = null;
+        }
+        scene.remove(floor);
+        if (rooftop) {
+            scene.remove(rooftop);
+        }
+        if (attachwall) {
+            scene.remove(attachwall);
+        }
 
+        if (poolwall) {
+            scene.remove(poolwall);
+        }
+        if (sunbed) {
+            scene.remove(sunbed);
+        }
+
+        if (ground) {
+            scene.remove(ground);
+        }
+
+        if (pool) {
+            scene.remove(pool);
+        }
+        const rgbeLoader = new RGBELoader();
+        const gltfLoader = new GLTFLoader();
+    
+        rgbeLoader.load(
+            'https://cdn.shopify.com/s/files/1/0733/1410/7678/files/autumn_field_puresky_4k.hdr?v=1732880715',
+            (hdrTexture) => {
+                hdrTexture.mapping = THREE.EquirectangularReflectionMapping;
+                hdrTexture.encoding = THREE.sRGBEncoding;
+
+                // Set the HDR texture as the scene's background and environment
+                scene.background = hdrTexture;
+                const pmremGenerator = new THREE.PMREMGenerator(renderer);
+                pmremGenerator.compileEquirectangularShader();
+
+                const envMap = pmremGenerator.fromEquirectangular(hdrTexture).texture;
+                scene.environment = envMap;
+
+                // Tone mapping and renderer setup for better exposure and realism
+                renderer.toneMapping = THREE.ACESFilmicToneMapping;
+                renderer.toneMappingExposure = 1; // Adjust for improved brightness and contrast
+
+                // Dispose PMREMGenerator (keep hdrTexture as background)
+                pmremGenerator.dispose();
+
+                // Add spherical world realism (ensure a fully immersive HDR)
+                const sphere = new THREE.Mesh(
+                    new THREE.SphereGeometry(500, 100, 100), // Higher segments for smoother sphere
+                    new THREE.MeshBasicMaterial({
+                        map: hdrTexture,
+                        side: THREE.BackSide, // Render inside the sphere
+                    })
+                );
+
+                // Position the HDR sphere for alignment
+                sphere.position.set(0, -50, 0); // Adjust Y-axis to position HDRI "floor"
+                sphere.scale.set(0.5, 0.5, 0.5); // Slight stretch for better perspective alignment
+                sphere.rotation.y = Math.PI;
+
+                scene.add(sphere);
+
+                console.log('HDRI environment set up with enhanced quality and positioning.');
+    
+                
+
+                gltfLoader.load(
+                    'https://cdn.shopify.com/3d/models/88272aff2371a381/Patio_New_1_.glb',
+                    (gltf) => {
+                        patio = gltf.scene;
+                        patio.position.set(0, -2, -1.03); // Adjust position as needed
+                        patio.rotation.y = (3 * Math.PI) / 2 // Place patio slightly below the main model
+                        patio.scale.set(0.85,0.85,0.85);
+    
+                        patio.traverse((child) => {
+                            if (child.isMesh) {
+                                child.castShadow = true;
+                                child.receiveShadow = true;
+                
+                                if (child.material) {
+                                    // Ensure the material updates for proper rendering
+                                    child.material.needsUpdate = true;
+                        
+                                    // Set the material to render both sides (fixes issues with thin geometry)
+                                    child.material.side = THREE.DoubleSide;
+                        
+                                    // Ensure textures have the correct encoding for proper color rendering
+                                    if (child.material.map) {
+                                        child.material.map.encoding = THREE.sRGBEncoding; // Use sRGB encoding for color maps
+                                        child.material.map.needsUpdate = true;
+                                    }
+                        
+                                    // Update normal maps, roughness maps, or any other texture maps
+                                    if (child.material.normalMap) {
+                                        child.material.normalMap.needsUpdate = true;
+                                    }
+                                    if (child.material.roughnessMap) {
+                                        child.material.roughnessMap.needsUpdate = true;
+                                    }
+                                    if (child.material.metalnessMap) {
+                                        child.material.metalnessMap.needsUpdate = true;
+                                    }
+                        
+                                    // Adjust material properties for better appearance
+                                    if ('roughness' in child.material) {
+                                        child.material.roughness = 0.5; // Adjust roughness for balanced PBR rendering
+                                    }
+                                    if ('metalness' in child.material) {
+                                        child.material.metalness = 0.5; // Adjust metalness as needed
+                                    }
+                        
+                                    // Ensure emissive textures and colors render correctly
+                                    if (child.material.emissiveMap) {
+                                        child.material.emissiveMap.needsUpdate = true;
+                                    }
+                                    if ('emissive' in child.material) {
+                                        child.material.emissive = new THREE.Color(0x000000); // Set emissive to black if not defined
+                                    }
+                        
+                                    // Fix for grass or transparent materials by enabling alpha blending
+                                    if ('transparent' in child.material && child.material.transparent) {
+                                        child.material.opacity = Math.max(child.material.opacity, 0.8); // Ensure opacity is sufficient
+                                        child.material.alphaTest = 0.5; // Discard pixels below this alpha threshold
+                                    }
+                                }
+                            }
+                        });
+    
+                        scene.add(patio);
+                        console.log('patio model loaded and positioned below the main model.');
+                    },
+                    undefined,
+                    (error) => {
+                        console.error('Error loading patio model:', error);
+                    }
+                );
+            },
+            undefined,
+            (error) => {
+                console.error('Error loading HDR texture:', error);
+            }
+        );
+    }
     // Call the function to set the initial environment
     loadRoomEnvironment();
-
+    let placement;
     // Add event listeners to the placement buttons
     const placementButtons = document.querySelectorAll('.button-grid-section .grid-btn');
 
@@ -286,14 +508,16 @@ document.addEventListener('DOMContentLoaded', () => {
             button.classList.add('active');
 
             // Get the text content to determine which environment to load
-            const placement = button.textContent.trim();
+            placement = button.textContent.trim();
 
-            if (placement === 'Over deck') {
+            if (placement === 'Deck') {
                 loadRoomEnvironment();
             } else if (placement === 'Rooftop') {
                 loadHDREnvironment();
             } else if (placement === 'Pool') {
                 loadPoolEnvironment();
+            } else if (placement === 'Patio') {
+                loadPatioEnvironment();
             }
             // Add additional conditions for other placements if needed
         });
@@ -319,15 +543,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const floor = new THREE.Mesh(floorGeometry, floorMaterial);
     floor.rotation.x = -Math.PI / 2; // Rotate the floor to lie flat
-    floor.position.y = -2.055; // Lower the floor slightly below the cube
+    floor.position.y = -2.1; // Lower the floor slightly below the cube
     floor.receiveShadow = true; // Enable shadows to be cast on the floor
     scene.add(floor);
     const gltfLoader = new GLTFLoader();
 
     gltfLoader.load( "https://cdn.shopify.com/3d/models/44f73190fc222ce5/floor.glb" , (gltf) => {
-        const ground = gltf.scene;
+        ground = gltf.scene;
         ground.scale.set(1.2, 31, 1.1);
-        ground.position.set(0, -2.25, -5.3);  // Adjust position as needed
+        ground.position.set(0, -2.3, -5.3);  // Adjust position as needed
         ground.rotation.x = -Math.PI / 2; // Rotate to lay flat
         ground.receiveShadow = true;
         ground.castShadow = true;
@@ -337,7 +561,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Create a new material or modify the existing one
                 child.material = new THREE.MeshPhysicalMaterial({
                     color: 0x98a7ac,  // Apply the specified color
-                    roughness: 0.3,   // Set roughness for a less reflective surface
+                    roughness: 1,   // Set roughness for a less reflective surface
                     metalness: 0,     // No metalness for a more matte look
                 });
                 child.receiveShadow = true;
@@ -450,12 +674,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Improved Lighting Setup
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    ambientLight.position.set(5, 10, 10);
     // ambientLight.intensity = 0.7;
     scene.add(ambientLight);
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
 
-    directionalLight.position.set(5, 15, 7.5);
+    directionalLight.position.set(5, 10, 10);
     directionalLight.intensity = 1.5
     directionalLight.castShadow = true;
     scene.add(directionalLight);
@@ -485,7 +710,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial Day Settings
     const daySettings = {
-        turbidity: 18,
+        turbidity: 5,
         rayleigh: 0.855,
         mieCoefficient: 0,
         mieDirectionalG: 1,
@@ -740,6 +965,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let object;
     let frontGlass = null, rearGlass = null, leftGlass = null, rightGlass = null;
+    let glassModel;
     let glassAnimationParts = []
     let glassAnimationPartsBySide = {
         front: [],
@@ -762,14 +988,22 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   
     let ledPart = null;
+    let defaultLedMaterial=null;
     let ledOriginalMaterial = null;
     let ledLight = null; // Reset the light reference
 
-    const modelFiles = {
-        "10'x10'": "https://cdn.shopify.com/3d/models/1e8cf4a673da40c5/10_-_10_.glb",
-        "10'x14'": "https://cdn.shopify.com/3d/models/d807d160c46f46e6/10_-_14_.glb",
-        "14'x14'": "https://cdn.shopify.com/3d/models/f594b0d8f7677337/14_-_14_.glb",
-        "14'x20'": "https://cdn.shopify.com/3d/models/b17f6ec3394ea421/14_-_20_.glb"
+    const modelFilesAttached = {
+        "10'x10'": "https://cdn.shopify.com/3d/models/f35d6a939d46108d/10_-_10_Attach.glb",
+        "10'x14'": "https://cdn.shopify.com/3d/models/fdd106508321edfb/10_-_14_Attach.glb",
+        "14'x14'": "https://cdn.shopify.com/3d/models/9ea1bd44a432e83a/14_-_14_Attach.glb",
+        "14'x20'": "https://cdn.shopify.com/3d/models/2aba7c55a911db14/14_-_20_Attach.glb"
+    };
+
+    let modelFiles = {
+        "10'x10'": "https://cdn.shopify.com/3d/models/ea6806b33b9070f6/10_-_10_.glb",
+        "10'x14'": "https://cdn.shopify.com/3d/models/9e109b0f5643870b/10_-_14_.glb",
+        "14'x14'": "https://cdn.shopify.com/3d/models/d86dbe8f361abd16/14_-_14_.glb",
+        "14'x20'": "https://cdn.shopify.com/3d/models/2e61917457ae33f6/14_-_20_.glb"
     };
     let rotatingParts = []; // Store parts to rotate
 
@@ -1165,54 +1399,63 @@ document.addEventListener('DOMContentLoaded', () => {
          
         calculatorContent = document.getElementById('calculator-content');
 
-    
+        let selectedSurfaceOption = null;
         // Update the calculator content dynamically to show only configuration prices
         if (calculatorContent) {
             if (calculatorContent) {
                 calculatorContent.innerHTML = `
                     
-                    <p><strong>Pergolade Tilt Pro:</strong></p>
+                    <span >Blade Pro:</span >
                     <ul>                        
                         <li class="item-row">
                             <span class="item-name">${selectedSize}</span>
                             <span class="item-price">$${pergolaPrices_config[selectedSize]}</span>
                         </li> 
-                    </ul>
-                    <p><strong>Slider:</strong></p>
-                    <ul>
-                        ${Object.keys(selectedSlides).map(side => 
-                            selectedSlides[side] ? `
-                            <li class="item-row">
-                                <span class="item-name">${side.charAt(0).toUpperCase() + side.slice(1)}</span>
-                                <span class="item-price">$${slidePrices_config[selectedSize]}</span>
-                            </li>` : '').join('')}
-                    </ul>
-                    <p><strong>Screen:</strong></p>
-                    <ul>
-                        ${Object.keys(selectedZips).map(side => 
-                            selectedZips[side] ? `
-                            <li class="item-row">
-                                <span class="item-name">${side.charAt(0).toUpperCase() + side.slice(1)}</span>
-                                <span class="item-price">$${zipPrices_config[selectedSize]}</span>
-                            </li>` : '').join('')}
-                    </ul>
-                    <p><strong>Accessories:</strong></p>
-                    <ul>
-                        ${Object.keys(selectedAddons).map(addon => 
-                            selectedAddons[addon] ? `
-                            <li class="item-row">
-                                <span class="item-name">${addon.charAt(0).toUpperCase() + addon.slice(1)}</span>
-                                <span class="item-price">$${addonPrices_config[addon]}</span>
-                            </li>` : '').join('')}
-                    </ul>
-                    <h4>
-                        <span class="bold-text">Surface</span>
-                    </h4>
+
+                        ${Object.values(selectedSlides).some(slide => slide) ? `
+                            <span >Slide:</span >
+                            <ul>
+                                ${Object.keys(selectedSlides).map(side =>
+                                    selectedSlides[side] ? `
+                                    <li class="item-row">
+                                        <span class="item-name">${side.charAt(0).toUpperCase() + side.slice(1)}</span>
+                                        <span class="item-price">$${slidePrices_config[selectedSize]}</span>
+                                    </li>` : ''
+                                ).join('')}
+                            </ul>` : ''}
+                    
+                            ${Object.values(selectedZips).some(zip => zip) ? `
+                            <span >Shade:</span >
+                            <ul>
+                                ${Object.keys(selectedZips).map(side =>
+                                    selectedZips[side] ? `
+                                    <li class="item-row">
+                                        <span class="item-name">${side.charAt(0).toUpperCase() + side.slice(1)}</span>
+                                        <span class="item-price">$${zipPrices_config[selectedSize]}</span>
+                                    </li>` : ''
+                                ).join('')}
+                            </ul>` : ''}
+
+                            ${Object.values(selectedAddons).some(addon => addon) ? `
+                            <span >Accessories:</span >
+                            <ul>
+                                ${Object.keys(selectedAddons).map(addon =>
+                                    selectedAddons[addon] ? `
+                                    <li class="item-row">
+                                        <span class="item-name">${addon.charAt(0).toUpperCase() + addon.slice(1)}</span>
+                                        <span class="item-price">$${addonPrices_config[addon]}</span>
+                                    </li>` : ''
+                                ).join('')}
+                            </ul>` : ''}
+                    <div>
+                        <span >Surface</span> <br>
+                        <div class="gray-text">What type of ground will it be installed on? </div>
+                    </div>
                     <div class="button-grid-section">
-                        <button class="grid-btn">Concrete Slab</button>
-                        <button class="grid-btn">Composite wood deck</button>
-                        <button class="grid-btn">Stone pavers</button>
-                        <button class="grid-btn">Footings required</button>
+                        <button class="grid-btn" data-value="Concrete Slab">Concrete Slab</button>
+                        <button class="grid-btn" data-value="Composite wood deck">Composite wood deck</button>
+                        <button class="grid-btn" data-value="Stone pavers">Stone pavers</button>
+                        <button class="grid-btn" data-value="Footings required">Footings required</button>
                     </div>
                 `;
             }
@@ -1221,9 +1464,35 @@ document.addEventListener('DOMContentLoaded', () => {
             // Restore the 'expanded' class if it was previously added
             if (isCalculatorExpanded) {
                 calculatorContent.classList.add('expanded');
+                
             } else {
                 calculatorContent.classList.remove('expanded');
             }
+
+            const gridButtons = calculatorContent.querySelectorAll('.button-grid-section .grid-btn');
+
+            gridButtons.forEach(button => {
+                // If this button's value matches the selected option, add 'active' class
+                if (button.getAttribute('data-value') === selectedSurfaceOption) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+
+                button.addEventListener('click', (event) => {
+                    // Update selectedSurfaceOption
+                    selectedSurfaceOption = button.getAttribute('data-value');
+
+                    // Remove 'active' class from all buttons
+                    gridButtons.forEach(btn => btn.classList.remove('active'));
+
+                    // Add 'active' class to the clicked button
+                    button.classList.add('active');
+
+                    // You can perform additional actions here, e.g., updating calculations
+                });
+            });                   
+            
         }
     }
     
@@ -1603,8 +1872,147 @@ document.addEventListener('DOMContentLoaded', () => {
     loadingManager.onError = function (url) {
         console.error(`There was an error loading ${url}`);
     };
+    let attachwall,poolwall;
+    let selection;
+    // Add event listeners to the "Freestanding" and "Wall-Wall-mounted" buttons
+    document.querySelectorAll('.adjacent-btn').forEach((button) => {
+        button.addEventListener('click', () => {
+            // Remove 'active' class from all adjacent-btn buttons
+            document.querySelectorAll('.adjacent-btn').forEach((btn) => {
+                btn.classList.remove('active');
+            });
+            // Add 'active' class to the clicked button
+            button.classList.add('active');
+
+            selection = button.textContent.trim();
+
+            if (selection === 'Wall-mounted') {
+                document.querySelectorAll('.side-container').forEach((container) => {
+                    const btn = container.querySelector('.side-btn');
+                    if (btn && btn.getAttribute('data-side') === 'rear') {
+                        console.warn("Rear glass cannot be selected in Wall-mounted mode.");
+                        btn.disabled = true; // Disable the button
+                        container.classList.add('disabled'); // Add a class for styling
+                    } else {
+                        btn.disabled = false; // Re-enable other buttons
+                        container.classList.remove('disabled');
+                    }
+                });
+                document.querySelectorAll('.zip-container').forEach((container) => {
+                    const btn = container.querySelector('.zip-btn');
+                    if (btn && btn.getAttribute('data-zip') === 'rear') {
+                        console.warn("Rear zip cannot be selected in Wall-mounted mode.");
+                        btn.disabled = true; // Disable the button
+                        container.classList.add('disabled'); // Add a class for styling
+                    } else if (btn) {
+                        btn.disabled = false; // Enable other buttons
+                        container.classList.remove('disabled');
+                    }
+                });
+                if (attachwall) {
+                    scene.remove(attachwall);
+                }
+
+                if (poolwall) {
+                    scene.remove(poolwall);
+                }
+                rotatingParts = [];
+                ashgrayParts = [];
+                // Replace modelFiles with modelFilesAttached
+                modelFiles = modelFilesAttached;
+                if (placement != 'Pool' && placement != 'Patio') {
+                    gltfLoader.load(
+                        'https://cdn.shopify.com/3d/models/1fc3f235d6f8ec83/Rooftop_attach_wall.glb',
+                        (gltf) => {
+                            attachwall = gltf.scene;
+                            attachwall.position.set(0, -1.9, 0.8); // Adjust position as needed
+                            attachwall.rotation.y = Math.PI / 2 // Place attachwall slightly below the main model
+                            attachwall.scale.set(1, 1, 1);
+        
+                            attachwall.traverse((child) => {
+                                if (child.isMesh) {
+                                    child.castShadow = true;
+                                    child.receiveShadow = true;
+                                    if (child.material) {
+                                        child.material.needsUpdate = true;
+                                    }
+                                }
+                            });
+        
+                            scene.add(attachwall);
+                            console.log('attachwall model loaded and positioned below the main model.');
+                        },
+                        undefined,
+                        (error) => {
+                            console.error('Error loading attachwall model:', error);
+                        }
+                    );
+                } else if (placement === 'Pool') {
+                    gltfLoader.load(
+                        'https://cdn.shopify.com/3d/models/4829cc9da827db8c/Pool_House_-_Attach_wall.glb',
+                        (gltf) => {
+                            poolwall = gltf.scene;
+                            poolwall.position.set(0, -2, 1.5); // Adjust position as needed
+                    
+                            poolwall.rotation.y = Math.PI / 2 // Place poolwall slightly below the main model
+                            poolwall.scale.set(1, 1, 1);
+        
+                            poolwall.traverse((child) => {
+                                if (child.isMesh) {
+                                    child.castShadow = true;
+                                    child.receiveShadow = true;
+                                    if (child.material) {
+                                        child.material.needsUpdate = true;
+                                    }
+                                }
+                            });
+        
+                            scene.add(poolwall);
+                            console.log('poolwall model loaded and positioned below the main model.');
+                        },
+                        undefined,
+                        (error) => {
+                            console.error('Error loading poolwall model:', error);
+                        }
+                    );
+                }
+                
+            } else if (selection === 'Freestanding') {
+                // Set modelFiles back to the freestanding models
+                document.querySelectorAll('.side-container').forEach((container) => {
+                    const btn = container.querySelector('.side-btn');
+                    if (btn) {
+                        btn.disabled = false; // Enable the button
+                        container.classList.remove('disabled');
+                    }
+                });
+                document.querySelectorAll('.zip-container').forEach((container) => {
+                    const btn = container.querySelector('.zip-btn');
+                    if (btn) {
+                        btn.disabled = false; // Enable the button
+                        container.classList.remove('disabled');
+                    }
+                });
+                if (attachwall) {
+                    scene.remove(attachwall);
+                }
+                if (poolwall) {
+                    scene.remove(poolwall);
+                }
+                modelFiles = {
+                    "10'x10'": "https://cdn.shopify.com/3d/models/ea6806b33b9070f6/10_-_10_.glb",
+                    "10'x14'": "https://cdn.shopify.com/3d/models/9e109b0f5643870b/10_-_14_.glb",
+                    "14'x14'": "https://cdn.shopify.com/3d/models/d86dbe8f361abd16/14_-_14_.glb",
+                    "14'x20'": "https://cdn.shopify.com/3d/models/2e61917457ae33f6/14_-_20_.glb"
+                };
+            }
+
+            loadModel(selectedSize);
+        });
+    });
 
 
+    let ashgrayParts = [];
     function loadModel(size) {
 
         const loadingScreen = document.getElementById('loading-screen-MainModel');
@@ -1620,10 +2028,12 @@ document.addEventListener('DOMContentLoaded', () => {
             exportRoot.remove(fanModel);
             fanModel = null;
         }
+        
        
         ledPart = null;
         ledOriginalMaterial = null;
         ledLight = null; // Reset the light reference
+        ashgrayParts = []; // Reset ashgrayParts
         removeAllZips()
 
         document.querySelectorAll('.side-container').forEach((btn) => {
@@ -1645,7 +2055,11 @@ document.addEventListener('DOMContentLoaded', () => {
             modelPath,
             (gltf) => {
                 object = gltf.scene;
-                object.position.set(0, -2, 0);
+                if (selection==='Wall-mounted' && selectedSize != "14'x20'" && selectedSize != "14'x14'"){
+                    object.position.set(0, -2, -1.1);             
+                } else {
+                    object.position.set(0, -2, 0);
+                }
                 object.scale.set(1, 1, 1);
                 scene.add(object);
                 exportRoot.add(object);
@@ -1654,31 +2068,86 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (child.isMesh) {
                         child.receiveShadow = true;
                         child.castShadow = true;
-                        
-                        // Identify parts for rotation based on name pattern
-                        if (child.name && child.name.match("3DGeom-1") && !child.name.match("3DGeom-11") && !child.name.match("3DGeom-12") && size == "14'x20'") {
-                            rotatingParts.push(child);
-                        } else if (child.name && child.name.match(/^3DGeom-1/) && size == "14'x14'") {
-                            rotatingParts.push(child);
-                        } else if (child.name && child.name.match(/^3DGeom-1/) && size == "10'x14'") {
-                            rotatingParts.push(child);
-                        } else if (child.name && child.name.match(/^3DGeom-1/) && size == "10'x10'") {
-                            rotatingParts.push(child);
-                        }
-                        if (child.name && child.name.match("3DGeom-4")) {
-                            rotatingParts.push(child);
-                        }
-                        if (child.name && child.name.match("3DGeom-3")) {
-                            rotatingParts.push(child);
+                        if (selection!='Wall-mounted') {
+                            // Identify parts for rotation based on name pattern
+                            if (child.name && child.name.match("3DGeom-3") && !child.name.match("3DGeom-11") && !child.name.match("3DGeom-12") && size == "14'x20'") {
+                                rotatingParts.push(child);
+                            } else if (child.name && child.name.match(/^3DGeom-3/) && size == "14'x14'") {
+                                rotatingParts.push(child);
+                            } else if (child.name && child.name.match(/^3DGeom-1/) && size == "10'x14'") {
+                                rotatingParts.push(child);
+                            } else if (child.name && child.name.match(/^3DGeom-2/) && size == "10'x10'") {
+                                rotatingParts.push(child);
+                            }
+                            if (child.name && child.name.match("3DGeom-5") && !child.name.match("3DGeom-58") && !child.name.match("3DGeom-59")) {
+                                rotatingParts.push(child);
+                            }
+                            if (child.name && child.name.match("3DGeom-3")) {
+                                rotatingParts.push(child);
+                            }
+                            if (child.name && child.name.match("3DGeom-4")) {
+                                rotatingParts.push(child);
+                            }
+
+                            if (child.name && child.name.match("3DGeom-6") && !child.name.match("3DGeom-61") && !child.name.match("3DGeom-62")) {
+                                rotatingParts.push(child);
+                            }
+
+                            if (
+                                ((child.name.match("3DGeom-123") || child.name.match("3DGeom-120")) && size === "14'x20'") ||
+                                ((child.name.match(/^3DGeom-87/) || child.name.match("3DGeom-84")) && size === "14'x14'") ||
+                                ((child.name.match(/^3DGeom-86/) || child.name.match("3DGeom-83")) && size === "10'x14'") ||
+                                ((child.name.match("3DGeom-59") || child.name.match("3DGeom-5")) && !child.name.match("3DGeom-58") && size === "10'x10'") ||
+                                child.name.match(/^3DGeom-6/) && !child.name.match("3DGeom-61")
+
+                            ) {
+                                ashgrayParts.push(child); // Collect ashgray parts
+                            }
+                        } else {
+
+                            if (child.name && child.name.match("3DGeom-3") && !child.name.match("3DGeom-11") && !child.name.match("3DGeom-12") && size == "14'x20'") {
+                                rotatingParts.push(child);
+                            } else if (child.name && child.name.match(/^3DGeom-3/) && size == "14'x14'") {
+                                rotatingParts.push(child);
+                            } else if (child.name && child.name.match(/^3DGeom-1/) && size == "10'x14'") {
+                                rotatingParts.push(child);
+                            } else if (child.name && child.name.match(/^3DGeom-2/) && size == "10'x10'") {
+                                rotatingParts.push(child);
+                            }
+                            if (child.name && child.name.match("3DGeom-5") && !child.name.match("3DGeom-58") && !child.name.match("3DGeom-59")) {
+                                rotatingParts.push(child);
+                            }
+                            if (child.name && child.name.match("3DGeom-3")) {
+                                rotatingParts.push(child);
+                            }
+                            if (child.name && child.name.match("3DGeom-4")) {
+                                rotatingParts.push(child);
+                            }
+
+                            if (child.name && child.name.match("3DGeom-6") && !child.name.match("3DGeom-60") && !child.name.match("3DGeom-64") && !child.name.match("3DGeom-61") && !child.name.match("3DGeom-62")) {
+                                rotatingParts.push(child);
+                            }
+
+                            if (
+                                ((child.name.match("3DGeom-124") || child.name.match("3DGeom-120")) && size === "14'x20'") ||
+                                ((child.name.match(/^3DGeom-88/) || child.name.match("3DGeom-84")) && size === "14'x14'") ||
+                                ((child.name.match(/^3DGeom-86/) || child.name.match("3DGeom-83")) && size === "10'x14'") ||
+                                ((child.name.match(/^3DGeom-64/) || child.name.match("3DGeom-83")) && size === "10'x10'") ||
+                                child.name.match(/^3DGeom-6/) && !child.name.match("3DGeom-61") &&  !child.name.match(/^3DGeom-62/) 
+
+                            ) {
+                                ashgrayParts.push(child); // Collect ashgray parts
+                            }
+
                         }
 
-                        if (child.name && child.name.match(/^3DGeom-120/) && size == "14'x20'") {
+                        if (child.name && child.name.match(/^3DGeom-121/) && size == "14'x20'") {
+                            ledPart=child;                            
+                        } else if (child.name && child.name.match(/^3DGeom-85/) && size == "14'x14'") {
                             ledPart=child;
-                        } else if (child.name && child.name.match(/^3DGeom-84/) && size == "14'x14'") {
+                        } else if (child.name && child.name.match(/^3DGeom-87/) && size == "10'x14'") {
                             ledPart=child;
-                        } else if (child.name && child.name.match(/^3DGeom-84/) && size == "10'x14'") {
-                            ledPart=child;
-                        } else if (child.name && child.name.match(/^3DGeom-60/) && size == "10'x10'") {
+                        } else if (child.name && child.name.match(/^3DGeom-61/) && size == "10'x10'") {
                             ledPart=child;
                         }
                     }
@@ -1691,6 +2160,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateSliderParts(object);
                 updateSelectedZips(selectedSize);
                 updateButtonLabels(size);
+                updateAllLabels();
+                updateSlideLabels();
+                updateZipLabels();
                 // Hide the loading screen
                 loadingScreen.style.display = 'none';
 
@@ -1719,7 +2191,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadModel(selectedSize); // Load default model
     updateTotalPrice();
 
-    initializeZipModule(scene, gltfLoader,exportRoot); // Initialize zip module
+    initializeZipModule(scene, gltfLoader,exportRoot,glassModel); // Initialize zip module
     setupZipControl(zipControl)
 
     // DOM Elements
@@ -1727,6 +2199,41 @@ document.addEventListener('DOMContentLoaded', () => {
     const sliderIcon = document.getElementById('sliderIcon');
     const zipIcon = document.getElementById('zipIcon');
     const ledIcon = document.getElementById('ledIcon');
+
+    let isSlideAvailable = false;
+    let isShadeAvailable = false;
+    let isLightAvailable = false;
+    function updateIconStates() {
+        // Slide Icon
+        if (!isSlideAvailable) {
+            sliderIcon.classList.add('disabled');
+            sliderIcon.disabled = true;
+        } else {
+            sliderIcon.classList.remove('disabled');
+            sliderIcon.disabled = false;
+        }
+    
+        // Shade Icon (Zip)
+        if (!isShadeAvailable) {
+            zipIcon.classList.add('disabled');
+            zipIcon.disabled = true;
+        } else {
+            zipIcon.classList.remove('disabled');
+            zipIcon.disabled = false;
+        }
+    
+        // Light Icon (LED)
+        if (!isLightAvailable) {
+            ledIcon.classList.add('disabled');
+            ledIcon.disabled = true;
+        } else {
+            ledIcon.classList.remove('disabled');
+            ledIcon.disabled = false;
+        }
+    }
+    
+    // CALL the function to initialize icon states
+    updateIconStates();
 
     const rotationSliderPopup = document.getElementById('rotationSliderPopup');
     const glassSliderPopup = document.getElementById('glassSliderPopup');
@@ -1744,63 +2251,107 @@ document.addEventListener('DOMContentLoaded', () => {
     const rgbLight = document.getElementById('rgb-light');
     const selectedColorElement = document.getElementById('selected-color');
     const ledIntensityControl = document.getElementById('ledIntensityControl');
-    const ledRgbColorPicker = document.getElementById('ledRgbColorPicker');
 
     // Variables
     let selectedLedOption = 'Warm White'; // Default LED option
     let ledLights = [];
-    const maxLedIntensity = 7.5;
+    const maxLedIntensity = 50;
+
+    // Object to store popup timeout IDs
+    const popupTimeouts = {};
+
+    // Function to hide a popup with fade-out animation
+    function hidePopup(popupElement) {
+        // Remove 'show' class if present
+        popupElement.classList.remove('show');
+        // Add 'hide' class
+        popupElement.classList.add('hide');
+
+        // Clear any existing timeout
+        if (popupTimeouts[popupElement.id]) {
+            clearTimeout(popupTimeouts[popupElement.id]);
+            delete popupTimeouts[popupElement.id];
+        }
+
+        // Wait for fade-out animation to complete before setting display to 'none'
+        setTimeout(() => {
+            popupElement.style.display = 'none';
+        }, 15500); // Match this duration with the fadeOut animation time
+    }
+
+    // Function to show a popup with fade-in animation and hide after 10 seconds
+    function showPopupWithTimeout(popupElement) {
+        // Hide all other popups
+        hideAllPopups();
+
+        // Remove 'hide' class if present
+        popupElement.classList.remove('hide');
+        // Add 'show' class
+        popupElement.classList.add('show');
+        popupElement.style.display = 'grid'; // Or 'block', depending on your layout
+
+        // If there's an existing timeout for this popup, clear it
+        if (popupTimeouts[popupElement.id]) {
+            clearTimeout(popupTimeouts[popupElement.id]);
+        }
+
+        // Automatically hide after 10 seconds
+        popupTimeouts[popupElement.id] = setTimeout(() => {
+            hidePopup(popupElement);
+            delete popupTimeouts[popupElement.id];
+        }, 10000);
+    }
 
     // Function to hide all popups
     function hideAllPopups() {
-        rotationSliderPopup.style.display = 'none';
-        glassSliderPopup.style.display = 'none';
-        zipSliderPopup.style.display = 'none';
-        ledIntensityPopup.style.display = 'none';
-        ledRgbPopup.style.display = 'none';
+        const popups = [rotationSliderPopup, glassSliderPopup, zipSliderPopup, ledIntensityPopup, ledRgbPopup];
+        popups.forEach(popup => {
+            hidePopup(popup);
+        });
     }
-    // Event listeners for other icons
+
+    // Event listeners for icons
     modelIcon.addEventListener('click', () => {
-        hideAllPopups();
-        rotationSliderPopup.style.display = 'grid';
+        showPopupWithTimeout(rotationSliderPopup);
     });
 
     sliderIcon.addEventListener('click', () => {
-        hideAllPopups();
-        glassSliderPopup.style.display = 'grid';
+
+        showPopupWithTimeout(glassSliderPopup);
     });
 
     zipIcon.addEventListener('click', () => {
-        hideAllPopups();
-        zipSliderPopup.style.display = 'grid';
-    });
-    document.querySelector('.three-js-container').addEventListener('click', function (event) {
-        // Check if the clicked element is NOT inside the icon-container
-        if (!event.target.closest('.icon-container')) {
-            hideAllPopups();
-        }
+   
+        showPopupWithTimeout(zipSliderPopup);
     });
 
-    // Event listeners for close buttons
-    closeRotationSlider.addEventListener('click', () => rotationSliderPopup.style.display = 'none');
-    closeGlassSlider.addEventListener('click', () => glassSliderPopup.style.display = 'none');
-    closeZipSlider.addEventListener('click', () => zipSliderPopup.style.display = 'none');
-    closeLedIntensityPopup.addEventListener('click', () => ledIntensityPopup.style.display = 'none');
-    closeLedRgbPopup.addEventListener('click', () => ledRgbPopup.style.display = 'none');
-
-    // LED icon click event - displays appropriate LED popup
     ledIcon.addEventListener('click', () => {
+        
         if (selectedAddons['lighting']) {
-            hideAllPopups();
             if (selectedLedOption === 'Warm White') {
-                ledIntensityPopup.style.display = 'grid';
+                showPopupWithTimeout(ledIntensityPopup);
             } else if (selectedLedOption === 'RGB') {
-                ledRgbPopup.style.display = 'grid';
+                showPopupWithTimeout(ledRgbPopup);
             }
         } else {
-            alert('Please add the LED lighting add-on first.');
+            isLightAvailable = false;
         }
     });
+
+    // // Close popups when clicking outside
+    // document.querySelector('.three-js-container').addEventListener('click', function (event) {
+    //     // Check if the clicked element is NOT inside the icon-container
+    //     if (!event.target.closest('.icon-container')) {
+    //         hideAllPopups();
+    //     }
+    // });
+
+    // Event listeners for close buttons
+    closeRotationSlider.addEventListener('click', () => hidePopup(rotationSliderPopup));
+    closeGlassSlider.addEventListener('click', () => hidePopup(glassSliderPopup));
+    closeZipSlider.addEventListener('click', () => hidePopup(zipSliderPopup));
+    closeLedIntensityPopup.addEventListener('click', () => hidePopup(ledIntensityPopup));
+    closeLedRgbPopup.addEventListener('click', () => hidePopup(ledRgbPopup));
 
     // Event listeners for LED options in the add-on container
     warmLight.addEventListener('click', () => {
@@ -1820,31 +2371,36 @@ document.addEventListener('DOMContentLoaded', () => {
         rgbLight.classList.add('selected');
         warmLight.classList.remove('selected');
         if (selectedAddons['lighting']) {
-            setLEDColor(parseInt(ledRgbColorPicker.value.slice(1), 16));
+            setLEDColor(`hsl(${ledRgbRangePicker.value}, 100%, 20%)`);
         }
     });
 
     // LED Intensity Control
     ledIntensityControl.addEventListener('input', (event) => {
         const intensityValue = event.target.value;
-        const intensity = THREE.MathUtils.mapLinear(intensityValue, 0, 100, 0, maxLedIntensity);
+        const intensity = THREE.MathUtils.mapLinear(intensityValue, 0, 50, 0, maxLedIntensity);
         updateLedIntensity(intensity);
     });
 
     function updateLedIntensity(intensity) {
         if (ledLights.length > 0) {
             ledLights.forEach(light => {
-                light.intensity = intensity;
+                light.intensity = 50 - intensity;
             });
         }
     }
 
-    // LED RGB Color Picker
-    ledRgbColorPicker.addEventListener('input', () => {
-        const selectedRGBColor = ledRgbColorPicker.value;
-        const rgbHexColor = parseInt(selectedRGBColor.slice(1), 16); // Convert to hexadecimal
-        setLEDColor(rgbHexColor);
+    const ledRgbRangePicker = document.getElementById('ledRgbRangePicker');
+
+    // Event listener for the RGB LED slider
+    ledRgbRangePicker.addEventListener('input', () => {
+        const hue = ledRgbRangePicker.value;
+        const rgbColor = `hsl(${hue}, 100%, 20%)`; // Convert hue to an HSL color
+        console.log(rgbColor);
+        setLEDColor(rgbColor);
     });
+
+
 
     // Function to update selected color display
     function updateSelectedColor(colorName) {
@@ -1870,10 +2426,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Create and add new lights
-            const ledIntensity = THREE.MathUtils.mapLinear(ledIntensityControl.value || 50, 0, 100, 0, maxLedIntensity);
-            const ledDistance = 300;
-            const position1 = ledPart.localToWorld(new THREE.Vector3(-2, 0, -2));
-            const position2 = ledPart.localToWorld(new THREE.Vector3(2, 0, -2));
+            const ledIntensity = THREE.MathUtils.mapLinear(ledIntensityControl.value || 50, 0, 50, 0, maxLedIntensity);
+            const ledDistance = 100;
+            const position1 = ledPart.localToWorld(new THREE.Vector3(-2, 0, -10));
+            const position2 = ledPart.localToWorld(new THREE.Vector3(2, 0, -10));
 
             ledLights.push(createPointLight(hexColor, ledIntensity, ledDistance, position1));
             ledLights.push(createPointLight(hexColor, ledIntensity, ledDistance, position2));
@@ -1897,12 +2453,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to add the lighting addon
     function addAddon(addonName) {
         if (addonName === 'lighting') {
+            isLightAvailable = true;
+            updateIconStates();
             selectedAddons['lighting'] = true;
             if (selectedLedOption === 'Warm White') {
                 setLEDColor(0xffe6b8);
-                updateLedIntensity(ledIntensityControl.value || 50);
+                updateLedIntensity(ledIntensityControl.value || 100);
             } else if (selectedLedOption === 'RGB') {
-                setLEDColor(parseInt(ledRgbColorPicker.value.slice(1), 16));
+                setLEDColor(`hsl(${ledRgbRangePicker.value}, 100%, 20%)`);
             }
         }
     }
@@ -1910,10 +2468,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to remove the lighting addon
     function removeAddon(addonName) {
         if (addonName === 'lighting') {
+            isLightAvailable = false;
+            updateIconStates();
             selectedAddons['lighting'] = false;
             if (ledLights.length > 0) {
                 ledLights.forEach(light => scene.remove(light));
                 ledLights = [];
+            }
+            if (ledPart && defaultLedMaterial) {
+                ledPart.material = defaultLedMaterial.clone();
+            } else {
+                console.warn('LED part or default material not available.');
             }
             hideAllPopups();
         }
@@ -1957,35 +2522,200 @@ document.addEventListener('DOMContentLoaded', () => {
             part.rotation.z = angle; // Rotate around the Z-axis based on the slider value
         });
     });
+
+
+    // Fetch product data dynamically using Shopify's AJAX API
+    const productHandle = 'blade'; // Replace with the actual handle of your product
+
+    let productData = null; // Store product data globally for easy access
+
+    const fetchProductData = fetch('/products/blade.js')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Failed to fetch product data.");
+            }
+            return response.json();
+        })
+        .then(data => {
+            productData = data;
+            console.log("Product data loaded:", productData);
+        })
+        .catch(error => console.error("Error fetching product data:", error));
+
+    const fetchSlideData = fetch('/products/slide.js')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Failed to fetch slide product data.");
+            }
+            return response.json();
+        })
+        .then(data => {
+            productDataSlide = data;
+            console.log("Slide product data loaded:", productDataSlide);
+        })
+        .catch(error => console.error("Error fetching slide product data:", error));
+
+    const fetchZipData = fetch('/products/shade.js')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Failed to fetch zip product data.");
+            }
+            return response.json();
+        })
+        .then(data => {
+            productDataZip = data;
+            console.log("Zip product data loaded:", productDataZip);
+        })
+        .catch(error => console.error("Error fetching zip product data:", error));
+
+
+    Promise.all([fetchProductData, fetchSlideData, fetchZipData])
+        .then(() => {
+            if (productData && productDataSlide && productDataZip) {
+                updateAllLabels();
+                updateSlideLabels();
+                updateZipLabels();
+            } else {
+                console.error("One or more product data objects are still missing.");
+            }
+        })
+        .catch(error => console.error("Error loading all product data:", error));
+    
+    // Function to update all labels based on product data
+    function updateAllLabels() {
+        if (!productData) {
+            console.error("Product data not loaded yet.");
+            return;
+        }
+
+        const variants = productData.variants;
+
+        // Iterate through all size containers
+        document.querySelectorAll('.size-container').forEach(container => {
+            const btn = container.querySelector('.size-btn');
+            const variantId = btn.getAttribute('data-variant-id');
+            const variant = variants.find(v => v.id == variantId);
+
+            if (variant) {
+            // Update availability
+            const availabilityElement = container.querySelector('.options-l.availability');
+            availabilityElement.textContent = variant.available ? 'Available to ship' : 'Out of stock';
+
+            // Update shipping time (use dummy or metafield-like data if available)
+            const shippingTimeElement = container.querySelector('.options-l.shipping-time');
+            shippingTimeElement.textContent = variant.metafields?.shipping_time || 'Unavailable'; // Adjust metafields access if needed
+
+            // Update price and discount price
+            const discountPriceElement = container.querySelector('.disc-price.discount-price');
+            const originalPriceElement = container.querySelector('.options-r.original-price');
+
+            if (variant.compare_at_price && variant.compare_at_price > variant.price) {
+                discountPriceElement.textContent = `$${(variant.price / 100).toFixed(0)}`;
+                originalPriceElement.textContent = `$${(variant.compare_at_price / 100).toFixed(0)}`;
+            } else {
+                discountPriceElement.textContent = `$${(variant.price / 100).toFixed(0)}`;
+                originalPriceElement.textContent = '';
+            }
+
+            // Update pay-over
+            const payOverElement = container.querySelector('.options-r.pay-over');
+            const monthlyPayment = (variant.price / 100) / 24; // Assuming a 24-month payment plan
+            payOverElement.textContent = `or from $${monthlyPayment.toFixed(2)}/month`;
+            } else {
+            console.warn(`Variant with ID ${variantId} not found.`);
+            }
+        });
+    }
+
+    // Function to update variant details for the active container
+    function updateVariantDetails(variantId) {
+        if (!productData) {
+            console.error("Product data not loaded yet.");
+            return;
+        }
+
+        const variant = productData.variants.find(v => v.id == variantId);
+
+        if (variant) {
+            // Update availability
+            const availabilityElement = document.querySelector('.size-container.active .options-l.availability');
+            availabilityElement.textContent = variant.available ? 'Available to ship' : 'Out of stock';
+
+            // Update shipping time
+            const shippingTimeElement = document.querySelector('.size-container.active .options-l.shipping-time');
+            shippingTimeElement.textContent = variant.metafields?.shipping_time || 'Available';
+
+            // Update price and discount price
+            const discountPriceElement = document.querySelector('.size-container.active .disc-price.discount-price');
+            const originalPriceElement = document.querySelector('.size-container.active .options-r.original-price');
+
+            if (variant.compare_at_price && variant.compare_at_price > variant.price) {
+            discountPriceElement.textContent = `$${(variant.price / 100).toFixed(0)}`;
+            originalPriceElement.textContent = `$${(variant.compare_at_price / 100).toFixed(0)}`;
+            } else {
+            discountPriceElement.textContent = `$${(variant.price / 100).toFixed(0)}`;
+            originalPriceElement.textContent = '';
+            }
+
+        // Update pay-over
+        const payOverElement = document.querySelector('.size-container.active .options-r.pay-over');
+        const monthlyPayment = (variant.price / 100) / 24; // Assuming a 24-month payment plan
+        payOverElement.textContent = `or from $${monthlyPayment.toFixed(2)}/month`;
+    } else {
+        console.error(`Variant with ID ${variantId} not found.`);
+    }
+    }
+
     // Listen for size button clicks
-    document.querySelectorAll('.size-container').forEach((container) => {
-        container.addEventListener('click', (event) => {
+    document.querySelectorAll('.size-container').forEach(container => {
+        container.addEventListener('click', () => {
             // Remove active class from all containers
             document.querySelectorAll('.size-container').forEach(button => button.classList.remove('active'));
             container.classList.add('active');
-    
+
+            // Get the variant ID from the button's data attribute
             const btn = container.querySelector('.size-btn');
-            rotationSliderPopup.style.display = 'grid';
+            const variantId = btn.getAttribute('data-variant-id');
+
+            // Update variant details for the active container
+            updateVariantDetails(variantId);
+
+            // Existing functions (if any)
             selectedSize = btn.textContent.trim();
             setSelectedSize(selectedSize);
             loadModel(selectedSize);
             updateTotalPrice();
-            setupZipControl(zipControl, selectedSize); // Set up zip slider control
+            setupZipControl(zipControl, selectedSize);
             updateButtonLabels(selectedSize);
+            updateSlideLabels();
+            updateZipLabels();
         });
     });
+
+
+
+    
     function applyMaterialChange(targetObject, newMaterial) {
+        const testMaterial2 = new THREE.MeshPhysicalMaterial({
+            color:0xB2BEB5,
+            roughness:0.8,
+            metalness:1,
+            side: THREE.DoubleSide 
+        });
+        // Apply default black material to all mesh children
         targetObject.traverse((child) => {
-            if (child.isMesh && (child.name.includes(ledPart.name) || child.name.includes("3DGeom-4"))) {
-                child.material != newMaterial;
-            } else{
-                child.material = newMaterial;
-            }
+            if (ashgrayParts.includes(child)) {
+            // Apply ashgray material to ashgrayParts
+            child.material = testMaterial2;
+        } else {
+            // Apply default black material to all other meshes
+            child.material = newMaterial;
+        }
         });
     }
     function applyMaterialChangeGlass(targetObject, selectedColor) {
         const newMaterial = new THREE.MeshPhysicalMaterial({
-            color: selectedColor === 'black' ? 0x212121 : 0xffffff,
+            color: selectedColor === 'black' ? 0x4a4a4a : 0xffffff,
             roughness:0.7,
             metalness:1,
             side: THREE.DoubleSide 
@@ -2020,13 +2750,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (colorTitleElementFan) {
                     colorTitleElementFan.textContent = selectedColor === 'black' ? 'Charcoal black' : 'Traffic white';
                 }
+                
+                // Update active class on color containers
+                document.querySelectorAll('.color-container').forEach((container) => {
+                    container.classList.remove('active');
+                });
 
+                const activeContainer = selectedColor === 'black'
+                    ? document.querySelector('.color-container .black').parentElement
+                    : document.querySelector('.color-container .white').parentElement;
+                if (activeContainer) {
+                    activeContainer.classList.add('active');
+                }
                 // Define new material based on the selected color
                 let newMaterial;
                 if (selectedColor === 'black' || selectedColor === 'white') {
                     newMaterial = new THREE.MeshPhysicalMaterial({
-                        color: selectedColor === 'black' ? 0x212121 : 0xffffff,
-                        roughness:0.45,
+                        color: selectedColor === 'black' ? 0x4a4a4a : 0xffffff,
+                        roughness:0.58,
                         metalness:1,
                         side: THREE.DoubleSide 
                         // flatShading: true,
@@ -2067,10 +2808,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     colorTitleElementFan.textContent = selectedColor === 'black' ? 'Charcoal black' : 'Traffic white';
                 }
 
+                document.querySelectorAll('.fan-color-selector .color-container').forEach((container) => {
+                    container.classList.remove('active');
+                });
+                event.target.closest('.color-container').classList.add('active');
+
 
                 // Define new material for the fan based on the selected color
                 let fanMaterial = new THREE.MeshPhysicalMaterial({
-                    color: selectedColor === 'black' ? 0x212121 : 0xffffff,
+                    color: selectedColor === 'black' ? 0x4a4a4a : 0xffffff,
                     roughness: 0.4,
                     metalness: 1
                 });
@@ -2090,36 +2836,44 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     function setDefaultBlackMaterial(object) {
         if (object) {
+            // Default black or white material based on the current color
             const defaultMaterial = new THREE.MeshPhysicalMaterial({
-                color: currentColor === 'black' ? 0x212121 : 0xffffff,
-                roughness:0.45,
-                metalness:1,
-                side: THREE.DoubleSide 
+                color: currentColor === 'black' ? 0x4a4a4a : 0xffffff, // Black or white
+                roughness: 0.58,
+                metalness: 1,
+                side: THREE.DoubleSide,
             });
-
-            const testMaterial = new THREE.MeshPhysicalMaterial({
-                color:0xB2BEB5,
-                roughness:0.8,
-                metalness:1,
-                side: THREE.DoubleSide 
-            });
-
-
     
-            // Apply default black material to all mesh children
+            // Ash gray material
+            const testMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0xB2BEB5, // Ash gray
+                roughness: 0.8,
+                metalness: 1,
+                side: THREE.DoubleSide,
+            });
+    
+            // Store the default LED material for later use
+            defaultLedMaterial = defaultMaterial;
+    
+            // Traverse through the object's children
             object.traverse((child) => {
-                if (child.isMesh && !child.name.includes("3DGeom-4")) {
-                    child.material = defaultMaterial; // Apply default black material
-                } else {
-                    child.material = testMaterial
+                if (child.isMesh) {
+                    if (ashgrayParts.includes(child)) {
+                        // Apply ashgray material to ashgrayParts
+                        child.material = testMaterial;
+                    } else {
+                        // Apply default black (or white) material to all other meshes
+                        child.material = defaultMaterial;
+                    }
                 }
             });
         }
     }
+    
     function setDefaultBlackMaterialGlass(object) {
         if (object) {
             const defaultMaterial = new THREE.MeshPhysicalMaterial({
-                color: currentColor === 'black' ? 0x212121 : 0xffffff,
+                color: currentColor === 'black' ? 0x4a4a4a : 0xffffff,
                 roughness:0.7,
                 metalness:1,
                 side: THREE.DoubleSide 
@@ -2194,29 +2948,30 @@ document.addEventListener('DOMContentLoaded', () => {
     //     const rect = container.getBoundingClientRect(); // Get canvas boundaries
     //     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
     //     mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
+    
     //     // Perform raycasting
     //     raycaster.setFromCamera(mouse, camera);
-
+    
     //     // Check for intersections with selectable parts (object children)
     //     const intersects = raycaster.intersectObjects(Object.values(selectableParts), true); // Recursive check
-
+    
     //     // Reset the previously selected part
     //     if (selectedPart) {
-    //         selectedPart.material.copy(originalMaterials[selectedPart.uuid]); // Correct material restoration
+    //         selectedPart.material.copy(originalMaterials[selectedPart.uuid]); // Restore the original material
     //         selectedPart = null; // Clear the selected part
     //     }
-
+    
+    //     // If there is an intersection, process the clicked object
     //     if (intersects.length > 0) {
     //         const clickedPart = intersects[0].object; // Get the first intersected object
-    //         container.style.cursor = 'pointer'
-
+    //         container.style.cursor = 'pointer';
+    
     //         // Store the original material if it's not already stored
     //         if (!originalMaterials[clickedPart.uuid]) {
     //             originalMaterials[clickedPart.uuid] = clickedPart.material.clone();
     //         }
-
-    //         // Apply the highlight material (yellow)
+    
+    //         // Apply a highlight material (yellow)
     //         clickedPart.material = new THREE.MeshPhysicalMaterial({
     //             color: 0xffff00, // Yellow for click highlight
     //             emissive: 0xffff00,
@@ -2224,23 +2979,49 @@ document.addEventListener('DOMContentLoaded', () => {
     //             metalness: 0.6,
     //             roughness: 0.4,
     //         });
-
-    //         // Update the display with the part name
-    //         const partName = clickedPart.userData.name || 'Unnamed Part';
+    
+    //         // Traverse up the hierarchy to collect group-related data
+    //         let groupInfo = [];
+    //         let currentObject = clickedPart;
+    //         while (currentObject) {
+    //             const groupName = currentObject.userData.name || currentObject.name || 'Unnamed Group';
+    //             groupInfo.push({
+    //                 groupName: groupName,
+    //                 objectID: currentObject.id,
+    //                 objectUUID: currentObject.uuid,
+    //                 parentName: currentObject.parent ? currentObject.parent.name || 'Unnamed Parent' : 'No Parent',
+    //             });
+    //             currentObject = currentObject.parent; // Move up the hierarchy
+    //         }
+    
+    //         // Display the collected information
     //         const nameDisplayBox = document.getElementById('name-display'); // Your HTML display element
-    //         nameDisplayBox.textContent = `Selected: ${partName}`;
-
+    //         nameDisplayBox.innerHTML = `<b>Selected Part Information:</b><br>${groupInfo
+    //             .map((info, index) => {
+    //                 return `
+    //                 <b>Group ${index + 1}:</b>
+    //                 <ul>
+    //                     <li><b>Name:</b> ${info.groupName}</li>
+    //                     <li><b>ID:</b> ${info.objectID}</li>
+    //                     <li><b>UUID:</b> ${info.objectUUID}</li>
+    //                     <li><b>Parent Name:</b> ${info.parentName}</li>
+    //                 </ul>`;
+    //             })
+    //             .join('')}`;
+    
     //         // Set the currently selected part
     //         selectedPart = clickedPart;
     //     } else {
     //         // Clear the name display box if no part is clicked
     //         const nameDisplayBox = document.getElementById('name-display');
-    //         nameDisplayBox.textContent = '';
+    //         nameDisplayBox.textContent = 'No object selected.';
+    //         container.style.cursor = 'default';
     //     }
     // }
-
+    
     // // Add event listener for clicks on the canvas
     // container.addEventListener('click', onMouseClick);
+    
 
     function updateSliderParts(glassModel) {
         selectableParts = {}; // Clear previous selectable parts
@@ -2254,7 +3035,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function toggleSlidingGlass(side, filePath) {
-        let glassModel;
         let glassParts = [];
 
         if (side === 'front') {
@@ -2325,6 +3105,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 setDefaultBlackMaterialGlass(newGlass);
                 updateSliderParts(newGlass);
                 animateGlassSliding(side);
+                initializeZipModule(scene, gltfLoader,exportRoot,newGlass);
 
               
 
@@ -2342,10 +3123,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
             scene.remove(glassModel);
             exportRoot.remove(glassModel);
+            initializeZipModule(scene, gltfLoader,exportRoot,false);
             if (side === 'front') frontGlass = null;
             if (side === 'rear') rearGlass = null;
             if (side === 'left') leftGlass = null;
             if (side === 'right') rightGlass = null;
+            isSlideAvailable = false;
+            updateIconStates();
 
             // Mark the side as deselected
             selectedGlasses[side] = false;
@@ -2353,9 +3137,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function positionGlass(glass, side) {
+        glass.scale.set(1.01,1,1)
         // Update positions of sliding glass based on selected size
         if (selectedSize === "14'x20'") {
-            if (side === 'front') glass.position.set(0, -2, -0.03);
+            if (side === 'front'){
+                glass.scale.set(1.01,1,1)
+                glass.position.set(0, -2, -0.03);
+            }
             if (side === 'rear') {
                 glass.position.set(0, -2, -4.31) ;
                 glass.rotation.y = -Math.PI;
@@ -2458,17 +3246,148 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    const productHandleSlide = 'slide'; // The product handle for slide
+    let productDataSlide = null; // Global variable to store slide product data
+
+    // Fetch the product data
+    
+
+    // Update slide labels only if productDataSlide is loaded
+    function updateSlideLabels() {
+        if (!productDataSlide) {
+            console.error("Slide product data not loaded yet.");
+            return;
+        }
+
+        const { width, depth } = parseSize(selectedSize); // Parse size into width and depth
+
+        document.querySelectorAll('.side-container').forEach(container => {
+            
+            const btn = container.querySelector('.side-btn');
+            if (!btn) {
+                console.warn("Side button not found in container:", container);
+                return;
+            }
+
+            const side = btn.getAttribute('data-side'); // e.g., 'front', 'rear', 'left', 'right'
+
+            // Update the button label to reflect the side and size
+            let sideLength = '';
+            if (side === 'front' || side === 'rear') {
+                sideLength = `${depth}'`;
+            } else if (side === 'left' || side === 'right') {
+                sideLength = `${width}'`;
+            }
+            btn.textContent = `${sideLength} ${capitalizeFirstLetter(side)}`;
+
+            // Retrieve the variant ID from variantMaps
+            const color = 'black'; // Assuming you have a function to get the selected color
+            const productType = "slides";
+            let variantId = getVariantId(selectedSize, side, color, productType);
+
+            if (!variantId) {
+                console.warn(`Variant ID not found for size: ${selectedSize}, side: ${side}, color: ${color}`);
+                return;
+            }
+
+            btn.setAttribute('data-variant-id', variantId); // Update button with the variant ID
+
+            // Find the corresponding variant in product data
+            let variant = productDataSlide.variants.find(v => v.id == variantId);
+
+            if (!variant) {
+                console.warn(`Variant with ID ${variantId} not found in product data.`);
+                return;
+            }
+
+            // Update availability
+            let availabilityElement = container.querySelector('.options-l.availability');
+            availabilityElement.textContent = variant.available ? 'Available to ship' : 'Out of stock';
+
+            // Update shipping time
+            let shippingTimeElement = container.querySelector('.options-l.shipping-time');
+            shippingTimeElement.textContent = variant.metafields?.product?.shipping_time || 'Unavailable';
+
+            // Update price and discount price
+            let priceElement = container.querySelector('.disc-price.size-discount-price');
+            let originalPriceElement = container.querySelector('.options-r.original-price');
+
+            priceElement.textContent = `$${(variant.price / 100).toFixed(0)}`;
+
+            
+            if (variant.compare_at_price && variant.compare_at_price > variant.price) {
+                    originalPriceElement.textContent = `$${(variant.compare_at_price / 100).toFixed(0)}`;
+            } else {
+                    originalPriceElement.textContent = '';
+            }
+            
+
+            // Update pay-over
+            let payOverElement = container.querySelector('.options-r.pay-over');
+            let monthlyPayment = (variant.price / 100) / 24; // Assuming a 24-month payment plan
+            payOverElement.textContent = `or from $${monthlyPayment.toFixed(2)}/month`;
+        });
+    }
+
+
+
+      
+    function getVariantId(selectedSize, side, color, productType) {
+        // Check if all keys exist in the variantMaps for the given parameters
+        if (
+            variantMaps[productType] &&
+            variantMaps[productType][selectedSize] &&
+            variantMaps[productType][selectedSize][side] &&
+            variantMaps[productType][selectedSize][side][color]
+        ) {
+            return variantMaps[productType][selectedSize][side][color];
+        } else {
+            console.warn(
+                `Variant ID not found for size: ${selectedSize}, side: ${side}, color: ${color}, productType: ${productType}`
+            );
+            return null; // Return null if any key is missing
+        }
+    }
+    
+    
+      
+      // Helper function to parse size string into width and depth
+    function parseSize(sizeStr) {
+        const dimensions = sizeStr.split('x');
+        if (dimensions.length === 2) {
+          const width = dimensions[0].replace(/'|"/g, '').trim();
+          const depth = dimensions[1].replace(/'|"/g, '').trim();
+          return { width, depth };
+        } else {
+          return { width: null, depth: null };
+        }
+    }
+      
+      // Helper function to capitalize the first letter
+    function capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+      
 
     // Add event listeners to the add-on buttons for each side
     document.querySelectorAll('.side-container').forEach((container) => {
         container.addEventListener('click', (event) => {
+            isSlideAvailable = true;
+            updateIconStates();
             // Find the button within the container
             const btn = container.querySelector('.side-btn');
             if (!btn) return; // Ensure the button exists within the container
-            glassSliderPopup.style.display = 'grid';
+            showPopupWithTimeout(glassSliderPopup);
+            updateSlideLabels();
     
             const side = btn.getAttribute('data-side'); // Extract the side attribute
             container.classList.toggle('active'); // Toggle the active class on the container
+            if (selection === 'Wall-mounted' && side === 'rear') {
+                console.warn("Rear glass cannot be selected in Wall-mounted mode.");
+                btn.disabled = true; // Disable the button
+                container.classList.add('disabled'); // Optionally add a class to style the disabled state
+                return; // Prevent further actions
+            }
     
             // Define modelMap based on selectedSize
             let modelMap;
@@ -2501,7 +3420,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     'right': "https://cdn.shopify.com/3d/models/23c54ac1a966edb4/Sliding_Glass_3_.glb"
                 };
             }
-    
             // If the model URL exists for the selected side, toggle the sliding glass
             if (modelMap && modelMap[side]) {
                 toggleSlidingGlass(side, modelMap[side]); // Call toggleSlidingGlass function
@@ -2510,17 +3428,106 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
-    
+    const productHandleZip = 'shade'; // Replace with the actual handle of your zip product
+    let productDataZip = null; // Global variable to store zip product data
 
+    
+    function updateZipLabels() {
+        if (!productDataZip) {
+          console.error("Zip product data not loaded yet.");
+          return;
+        }
+      
+        const { width, depth } = parseSize(selectedSize); // Parse size into width and depth
+      
+        // Iterate through all zip containers
+        document.querySelectorAll('.zip-container').forEach(container => {
+          const btn = container.querySelector('.zip-btn');
+          if (!btn) {
+            console.warn("Zip button not found in container:", container);
+            return;
+          }
+      
+          const side = btn.getAttribute('data-zip'); // e.g., 'front', 'rear', 'left', 'right'
+      
+          // Update the button label to reflect the side and size
+          let sideLength = '';
+          if (side === 'front' || side === 'rear') {
+            sideLength = `${depth}'`;
+          } else if (side === 'left' || side === 'right') {
+            sideLength = `${width}'`;
+          }
+          btn.textContent = `${sideLength} ${capitalizeFirstLetter(side)}`;
+      
+          // Retrieve the variant ID from variantMaps
+          const color = 'black'; // Assuming you have a function to get the selected color
+          const productType = "zips";
+          let variantId = getVariantId(selectedSize, side, color, productType);
+      
+          if (!variantId) {
+            console.warn(`Variant ID not found for size: ${selectedSize}, side: ${side}, color: ${color}`);
+            return;
+          }
+      
+          btn.setAttribute('data-variant-id', variantId); // Update button with the variant ID
+      
+          // Find the corresponding variant in product data
+          let variant = productDataZip.variants.find(v => v.id == variantId);
+      
+          if (!variant) {
+            console.warn(`Variant with ID ${variantId} not found in product data.`);
+            return;
+          }
+      
+          // Update availability
+          let availabilityElement = container.querySelector('.options-l.availability');
+          availabilityElement.textContent = variant.available ? 'Available to ship' : 'Out of stock';
+      
+          // Update shipping time
+          let shippingTimeElement = container.querySelector('.options-l.shipping-time');
+          shippingTimeElement.textContent = variant.metafields?.product?.shipping_time || 'Unavailable';
+      
+          // Update price and discount price
+          let priceElement = container.querySelector('.disc-price.zip-discount-price');
+          let originalPriceElement = container.querySelector('.options-r.original-price');
+      
+          priceElement.textContent = `$${(variant.price / 100).toFixed(0)}`;
+      
+          if (variant.compare_at_price && variant.compare_at_price > variant.price) {
+              originalPriceElement.textContent = `$${(variant.compare_at_price / 100).toFixed(0)}`;
+          } else {
+              originalPriceElement.textContent = '';
+          }
+          
+      
+          // Update pay-over
+          let payOverElement = container.querySelector('.options-r.pay-over');
+          const monthlyPayment = (variant.price / 100) / 24; // Assuming a 24-month payment plan
+          payOverElement.textContent = `or from $${monthlyPayment.toFixed(2)}/month`;
+        });
+    }
+      
     document.querySelectorAll('.zip-container').forEach((container) => {
         container.addEventListener('click', (event) => {
+            isShadeAvailable = true;
+            updateIconStates();
             // Find the zip button within the container
             const btn = container.querySelector('.zip-btn');
             if (!btn) return; // Ensure the button exists within the container
     
             const side = btn.getAttribute('data-zip'); // Extract the side attribute
             container.classList.toggle('active'); // Toggle active class on the container
-            zipSliderPopup.style.display = 'grid';
+            if (selection === 'Wall-mounted' && side === 'rear') {
+                console.warn("Rear zip cannot be selected in Wall-mounted mode.");
+                btn.disabled = true; // Disable the button
+                container.classList.add('disabled'); // Add a class for styling
+                return; // Prevent further actions
+            } else {
+                // Enable the button if not Wall-mounted or not rear
+                btn.disabled = false;
+                container.classList.remove('disabled');
+            }
+            showPopupWithTimeout(zipSliderPopup);
     
             // Define modelMap based on selectedSize
             let modelMap;
