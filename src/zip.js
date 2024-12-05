@@ -24,7 +24,7 @@ export function setCurrentColor(color) {
 }
 
 
-let scene, gltfLoader,exportRoot
+let scene, gltfLoader,exportRoot,glassModel,isShadeAvailable;
 let selectedSize; 
 let zipButtonsInitialized = false;
 
@@ -58,10 +58,11 @@ export function removeAllZips() {
     zipAnimationParts = [];
 }
 
-export function initializeZipModule(_scene, _gltfLoader,_exportRoot) {
+export function initializeZipModule(_scene, _gltfLoader,_exportRoot,_glassModel) {
     scene = _scene;
     gltfLoader = _gltfLoader;
     exportRoot = _exportRoot;
+    glassModel = _glassModel;
 }
 export function setSelectedSize(size) {
     selectedSize = size;
@@ -72,7 +73,7 @@ export function applyMaterialChangeZip(targetObject, selectedColor) {
         if (child.isMesh) {
             if (child.name.includes('fad2a5')) {
                 let newMaterial = new THREE.MeshPhysicalMaterial({
-                    color: selectedColor === 'black' ? 0x212121 : 0xF1F0EA,
+                    color: selectedColor === 'black' ? 0x4a4a4a : 0xF1F0EA,
                     metalness: 0.9,
                     roughness: 0.5,
                     side: THREE.DoubleSide 
@@ -94,7 +95,7 @@ export function applyMaterialChangeZip(targetObject, selectedColor) {
 function setDefaultBlackMaterialZip(object) {
     if (object) {
         let defaultMaterial = new THREE.MeshPhysicalMaterial({
-            color: currentColor === 'black' ? 0x212121 : 0xF1F0EA,
+            color: currentColor === 'black' ? 0x4a4a4a : 0xF1F0EA,
             metalness: 0.9,
             roughness: 0.5,
             side: THREE.DoubleSide 
@@ -145,7 +146,12 @@ export function toggleZip(side, filePath, selectedSize) {
         gltfLoader.load(filePath, (gltf) => {
             const newZip = gltf.scene;
             newZip.scale.set(1, 1, 1);
-            positionZip(newZip, side, selectedSize);
+            if(glassModel) {
+                positionZip(newZip, side, selectedSize);
+            } else {
+                positionZip2(newZip, side, selectedSize);
+            }
+            
             scene.add(newZip);
             exportRoot.add(newZip);
 
@@ -221,6 +227,8 @@ export function toggleZip(side, filePath, selectedSize) {
         if (side === 'rear') rearZip = null;
         if (side === 'left') leftZip = null;
         if (side === 'right') rightZip = null;
+        const zipIcon = document.getElementById('zipIcon');
+        zipIcon.classList.add('disabled');
     }
 }
 
@@ -228,66 +236,129 @@ export function toggleZip(side, filePath, selectedSize) {
 function positionZip(zip, side,selectedSize) {
     // Use the same positions as the sliding glass
     if (selectedSize === "14'x20'") {
-        if (side === 'front') zip.position.set(0, -1.95, 0.08);
+        if (side === 'front') zip.position.set(0, -2, 0.08);
         if (side === 'rear'){
-            zip.position.set(0, -1.95, -4.45);
+            zip.position.set(0, -2, -4.45);
             zip.rotation.y = -Math.PI;
 
         } 
         if (side === 'left') {
-            zip.position.set(-3.2, -1.95, -2.18);
+            zip.position.set(-3.2, -2, -2.18);
             zip.rotation.y = -Math.PI / 2;
         }
         if (side === 'right') {
-            zip.position.set(3.2, -1.95, -2.161);
+            zip.position.set(3.2, -2, -2.161);
             zip.rotation.y = Math.PI / 2;
         }
     } else if (selectedSize === "14'x14'") {
-        if (side === 'front') zip.position.set(0, -1.95, 0.08);
+        if (side === 'front') zip.position.set(0, -2, 0.08);
         if (side === 'rear'){
-            zip.position.set(0, -1.95, -4.45);
+            zip.position.set(0, -2, -4.45);
             zip.rotation.y = -Math.PI;
 
         } 
         if (side === 'left') {
-            zip.position.set(-2.24, -1.95, -2.18);
+            zip.position.set(-2.24, -2, -2.18);
             zip.rotation.y = -Math.PI / 2;
         }
         if (side === 'right') {
-            zip.position.set(2.24, -1.95, -2.161);
+            zip.position.set(2.24, -2, -2.161);
             zip.rotation.y = Math.PI / 2;
         }
     } else if (selectedSize === "10'x14'") {
-        if (side === 'front') zip.position.set(0, -1.95, 0.08);
+        if (side === 'front') zip.position.set(0, -2, 0.08);
         if (side === 'rear') {
-            zip.position.set(0, -1.95, -3.20);
+            zip.position.set(0, -2, -3.20);
             zip.rotation.y = -Math.PI; 
         }
         if (side === 'left') {
-            zip.position.set(-2.24, -1.95, -1.58);
+            zip.position.set(-2.24, -2, -1.58);
             zip.rotation.y = -Math.PI / 2;
         }
         if (side === 'right') {
-            zip.position.set(2.24, -1.95, -1.55);
+            zip.position.set(2.24, -2, -1.55);
             zip.rotation.y = Math.PI / 2;
         }
     } else if (selectedSize === "10'x10'") {
-        if (side === 'front') zip.position.set(0, -1.95, 0.08);
+        if (side === 'front') zip.position.set(0, -2, 0.08);
         if (side === 'rear') {
-            zip.position.set(0, -1.95, -3.20);
+            zip.position.set(0, -2, -3.20);
             zip.rotation.y = -Math.PI; 
         }
         if (side === 'left') {
-            zip.position.set(-1.63, -1.95, -1.58);
+            zip.position.set(-1.63, -2, -1.58);
             zip.rotation.y = -Math.PI / 2;
         }
         if (side === 'right') {
-            zip.position.set(1.63, -1.95, -1.55);
+            zip.position.set(1.63, -2, -1.55);
             zip.rotation.y = Math.PI / 2;
         }
     }
 }
-
+function positionZip2(zip, side) {
+    // Update positions of sliding zip based on selected size
+    zip.scale.set(1.01,1,1)
+    if (selectedSize === "14'x20'") {
+        if (side === 'front'){
+            zip.scale.set(1.01,1,1)
+            zip.position.set(0, -2, -0.03);
+        }
+        if (side === 'rear') {
+            zip.position.set(0, -2, -4.31) ;
+            zip.rotation.y = -Math.PI;
+        }
+        if (side === 'left') {
+            zip.position.set(-3.1, -2, -2.18);
+            zip.rotation.y = -Math.PI / 2;
+        }
+        if (side === 'right') {
+            zip.position.set(3.1, -2, -2.18);
+            zip.rotation.y = Math.PI / 2;
+        }
+    } else if (selectedSize === "14'x14'") {
+        if (side === 'front') zip.position.set(0, -2, -0.03);
+        if (side === 'rear'){
+            zip.position.set(0, -2, -4.31);
+            zip.rotation.y = -Math.PI;
+        }
+        if (side === 'left') {
+            zip.position.set(-2.13, -2, -2.18);
+            zip.rotation.y = -Math.PI / 2;
+        }
+        if (side === 'right') {
+            zip.position.set(2.13, -2, -2.18);
+            zip.rotation.y = Math.PI / 2;
+        }
+    } else if (selectedSize === "10'x14'") {
+        if (side === 'front') zip.position.set(0, -2, -0.03);
+        if (side === 'rear') {
+            zip.position.set(0, -2, -3.09);
+            zip.rotation.y = -Math.PI; 
+        }
+        if (side === 'left') {
+            zip.position.set(-2.2, -2, -1.55);
+            zip.rotation.y = -Math.PI / 2;
+        }
+        if (side === 'right') {
+            zip.position.set(2.2, -2, -1.55);
+            zip.rotation.y = Math.PI / 2;
+        }
+    } else if (selectedSize === "10'x10'") {
+        if (side === 'front') zip.position.set(0, -2, -0.03);
+        if (side === 'rear') {
+            zip.position.set(0, -2, -3.09);
+            zip.rotation.y = -Math.PI; 
+        }
+        if (side === 'left') {
+            zip.position.set(-1.52, -2, -1.55);
+            zip.rotation.y = -Math.PI / 2;
+        }
+        if (side === 'right') {
+            zip.position.set(1.52, -2, -1.55);
+            zip.rotation.y = Math.PI / 2;
+        }
+    }
+}
 export function updateSelectedZips(selectedSize) {
 
     Object.keys(selectedZips).forEach((side) => {
@@ -430,13 +501,10 @@ export function setupZipControl(zipControlElement, selectedSize) {
 
 function animateZipSliding(parts, isOpening = true, onComplete) {
     if (!parts || parts.length === 0) {
-        console.log("No parts provided for animation."); // Debug log for empty parts array
         if (onComplete) onComplete();
         return;
     }
 
-    console.log("Starting animation with parts:", parts); // Log the parts array
-    console.log("Animation type:", isOpening ? "Opening" : "Closing");
 
     const initialMaxMovement = 100;
     const maxMovement = initialMaxMovement;
@@ -448,17 +516,14 @@ function animateZipSliding(parts, isOpening = true, onComplete) {
         let elapsed = time - startTime;
         let progress = Math.min(elapsed / duration, 1);
 
-        console.log("Elapsed time:", elapsed, "Progress:", progress); // Log animation timing details
 
         // Calculate slideAmount based on whether it's opening or closing
         let slideAmount = isOpening ? progress : 1 - progress; // From 0 to 1 or 1 to 0
-        console.log("Slide amount:", slideAmount); // Log the slideAmount for debugging
 
         // Apply movement logic to the provided parts
         parts.forEach((part, index) => {
             if (!part.geometry.boundingBox) {
                 part.geometry.computeBoundingBox(); // Ensure bounding box is up to date
-                console.log(`Bounding box computed for part ${index}:`, part.geometry.boundingBox);
             }
 
             if (part.name.includes('efe4d4')) {
@@ -469,19 +534,11 @@ function animateZipSliding(parts, isOpening = true, onComplete) {
                 const deltaZ = height * (1 - part.scale.z);
                 part.position.z = part.userData.initialZ + deltaZ;
 
-                console.log(
-                    `Animating scale for part ${index}:`,
-                    `Scale Z: ${part.scale.z}, Position Z: ${part.position.z}`
-                );
             } else {
                 // Uniform movement for other parts
                 const movementLimit = slideAmount * maxMovement;
                 part.position.z = part.userData.initialZ + movementLimit;
 
-                console.log(
-                    `Animating movement for part ${index}:`,
-                    `Position Z: ${part.position.z}`
-                );
             }
         });
 
