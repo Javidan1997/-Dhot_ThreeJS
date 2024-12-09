@@ -1,7 +1,6 @@
 // zip.js
 import * as THREE from 'three';
 
-
 let currentColor = 'black';
 export let zipAnimationPartsBySide = {};
 export let frontZip = null, rearZip = null, leftZip = null, rightZip = null; // To store zip models for each side
@@ -146,12 +145,7 @@ export function toggleZip(side, filePath, selectedSize) {
         gltfLoader.load(filePath, (gltf) => {
             const newZip = gltf.scene;
             newZip.scale.set(1, 1, 1);
-            if(glassModel) {
-                positionZip(newZip, side, selectedSize);
-            } else {
-                positionZip2(newZip, side, selectedSize);
-            }
-            
+            positionZip(newZip, side, selectedSize);
             scene.add(newZip);
             exportRoot.add(newZip);
 
@@ -295,70 +289,7 @@ function positionZip(zip, side,selectedSize) {
         }
     }
 }
-function positionZip2(zip, side) {
-    // Update positions of sliding zip based on selected size
-    zip.scale.set(1.01,1,1)
-    if (selectedSize === "14'x20'") {
-        if (side === 'front'){
-            zip.scale.set(1.01,1,1)
-            zip.position.set(0, -2, -0.03);
-        }
-        if (side === 'rear') {
-            zip.position.set(0, -2, -4.31) ;
-            zip.rotation.y = -Math.PI;
-        }
-        if (side === 'left') {
-            zip.position.set(-3.1, -2, -2.18);
-            zip.rotation.y = -Math.PI / 2;
-        }
-        if (side === 'right') {
-            zip.position.set(3.1, -2, -2.18);
-            zip.rotation.y = Math.PI / 2;
-        }
-    } else if (selectedSize === "14'x14'") {
-        if (side === 'front') zip.position.set(0, -2, -0.03);
-        if (side === 'rear'){
-            zip.position.set(0, -2, -4.31);
-            zip.rotation.y = -Math.PI;
-        }
-        if (side === 'left') {
-            zip.position.set(-2.13, -2, -2.18);
-            zip.rotation.y = -Math.PI / 2;
-        }
-        if (side === 'right') {
-            zip.position.set(2.13, -2, -2.18);
-            zip.rotation.y = Math.PI / 2;
-        }
-    } else if (selectedSize === "10'x14'") {
-        if (side === 'front') zip.position.set(0, -2, -0.03);
-        if (side === 'rear') {
-            zip.position.set(0, -2, -3.09);
-            zip.rotation.y = -Math.PI; 
-        }
-        if (side === 'left') {
-            zip.position.set(-2.2, -2, -1.55);
-            zip.rotation.y = -Math.PI / 2;
-        }
-        if (side === 'right') {
-            zip.position.set(2.2, -2, -1.55);
-            zip.rotation.y = Math.PI / 2;
-        }
-    } else if (selectedSize === "10'x10'") {
-        if (side === 'front') zip.position.set(0, -2, -0.03);
-        if (side === 'rear') {
-            zip.position.set(0, -2, -3.09);
-            zip.rotation.y = -Math.PI; 
-        }
-        if (side === 'left') {
-            zip.position.set(-1.52, -2, -1.55);
-            zip.rotation.y = -Math.PI / 2;
-        }
-        if (side === 'right') {
-            zip.position.set(1.52, -2, -1.55);
-            zip.rotation.y = Math.PI / 2;
-        }
-    }
-}
+
 export function updateSelectedZips(selectedSize) {
 
     Object.keys(selectedZips).forEach((side) => {
