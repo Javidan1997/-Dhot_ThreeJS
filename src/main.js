@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const gltfLoader = new GLTFLoader();
     
         rgbeLoader.load(
-            'https://cdn.shopify.com/s/files/1/0733/1410/7678/files/autumn_field_puresky_4k.hdr?v=1732880715',
+            'https://cdn.shopify.com/s/files/1/0733/1410/7678/files/autumn_field_puresky_2k.hdr?v=1733951633',
             (hdrTexture) => {
                 hdrTexture.mapping = THREE.EquirectangularReflectionMapping;
                 hdrTexture.encoding = THREE.sRGBEncoding;
@@ -2444,6 +2444,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to set LED color
     function setLEDColor(hexColor) {
         if (ledPart) {
+            // Update LED part material
             ledPart.material = new THREE.MeshPhysicalMaterial({
                 color: new THREE.Color(hexColor),
                 emissive: new THREE.Color(hexColor),
@@ -2453,67 +2454,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 side: THREE.DoubleSide
             });
 
-            // Remove any existing lights to prevent duplicates
+            // Remove existing lights
             if (ledLights.length > 0) {
                 ledLights.forEach(light => scene.remove(light));
                 ledLights = [];
             }
 
+            // Compute LED light properties
             const ledIntensity = THREE.MathUtils.mapLinear(ledIntensityControl.value || 50, 0, 50, 0, maxLedIntensity);
-            const ledDistance = 10; // Softer light with greater distance
-            const spotLightAngle = Math.PI / 4; // Wider beam for warm LED effect
 
-            // Positions for lights
+            // Get LED part position and orientation
             const boundingBox = new THREE.Box3().setFromObject(ledPart);
             const center = new THREE.Vector3();
             boundingBox.getCenter(center);
 
-            // Adjust positions relative to the center
-            const offset = -2.05; // Distance from the center
-            const position1 = center.clone().add(new THREE.Vector3(-offset, 0, -offset)); // Left-back offset
-            const position2 = center.clone().add(new THREE.Vector3(offset, 0, -offset));  // Right-back offset
+            // Adjust position for the light
+            const lightPosition = center.clone();
+            lightPosition.y += 0; // Offset the light downward
 
+            // Create a spotlight for directional lighting
+            const spotLight = new THREE.SpotLight(hexColor, ledIntensity, 90, Math.PI / 2, 0.5, 1);
+            spotLight.position.copy(lightPosition);
+            spotLight.target.position.set(center.x, center.y - 2, center.z); // Pointing downward
+            spotLight.castShadow = true;
+            // const sphelper = new THREE.SpotLightHelper(spotLight);
+            // scene.add(sphelper);
 
-            // Add spotlights
-            ledLights.push(createWarmSpotLight(0xFFD8A8, ledIntensity, ledDistance, position1, spotLightAngle)); // Warm white light color
-            ledLights.push(createWarmSpotLight(0xFFD8A8, ledIntensity, ledDistance, position2, spotLightAngle));
-                // Optional debugging helper for spotlights
-            // const helper1 = new THREE.SpotLightHelper(ledLights[0]);
-            // const helper2 = new THREE.SpotLightHelper(ledLights[1]);
-            // scene.add(helper1, helper2);
+            // Configure shadow for better visual quality
+            spotLight.shadow.bias = -0.002;
+            spotLight.shadow.mapSize.width = 1024;
+            spotLight.shadow.mapSize.height = 1024;
+
+            // Add the spotlight and target to the scene
+            scene.add(spotLight);
+            scene.add(spotLight.target);
+
+            // Store the light for future updates
+            ledLights.push(spotLight);
         } else {
             console.warn('LED part not found in the model.');
         }
     }
 
-    function createWarmSpotLight(color, intensity, distance, position, angle) {
-        // Create a SpotLight with reduced intensity and wider penumbra for soft edges
-        const spotLight = new THREE.SpotLight(color, intensity * 0.8, distance, angle, 0.8, 1); 
-        spotLight.position.copy(position);
-        spotLight.target.position.set(position.x, position.y - 1, position.z - 2); // Target slightly downward
-        spotLight.castShadow = true;
-    
-        // Adjust shadow properties for natural soft shadows
-        spotLight.shadow.bias = -0.002; // Reduced shadow bias
-        spotLight.shadow.mapSize.width = 1024; // Balanced shadow resolution
-        spotLight.shadow.mapSize.height = 1024;
-        spotLight.shadow.camera.near = 0.1; // Avoid too close shadows
-        spotLight.shadow.camera.far = distance; // Restrict shadow distance
-        spotLight.shadow.camera.fov = angle * (180 / Math.PI); // Match the light cone
-    
-        // Add a subtle ambient light for a warm glow around the spotlight
-        const ambientLight = new THREE.PointLight(color, intensity * 0.1, distance / 3);
-        ambientLight.position.copy(position);
-        ambientLight.position.y -= 0.2; // Slight offset for ambient light
-    
-        // Add lights to the scene
-        scene.add(ambientLight);
-        scene.add(spotLight);
-        scene.add(spotLight.target); // Important to add the target for proper aiming
-    
-        return spotLight;
-    }
-    
     
 
 
@@ -3239,32 +3221,69 @@ document.addEventListener('DOMContentLoaded', () => {
                 glass.rotation.y = Math.PI / 2;
             }
         } else if (selectedSize === "10'x14'") {
-            if (side === 'front') glass.position.set(0, -2, -0.03);
-            if (side === 'rear') {
-                glass.position.set(0, -2, -3.09);
-                glass.rotation.y = -Math.PI; 
+            if (selection==='Wall-mounted'){
+                if (side === 'front') glass.position.set(0, -2, -1.2);
+                if (side === 'rear') {
+                    glass.position.set(0, -2, -4.26);
+                    glass.rotation.y = -Math.PI; 
+                }
+                if (side === 'left') {
+                    glass.position.set(-2.13, -2, -2.72);
+                    glass.rotation.y = -Math.PI / 2;
+                }
+                if (side === 'right') {
+                    glass.position.set(2.13, -2, -2.72);
+                    glass.rotation.y = Math.PI / 2;
+                }
+
+            } else {
+                if (side === 'front') glass.position.set(0, -2, -0.03);
+                if (side === 'rear') {
+                    glass.position.set(0, -2, -3.09);
+                    glass.rotation.y = -Math.PI; 
+                }
+                if (side === 'left') {
+                    glass.position.set(-2.13, -2, -1.55);
+                    glass.rotation.y = -Math.PI / 2;
+                }
+                if (side === 'right') {
+                    glass.position.set(2.13, -2, -1.55);
+                    glass.rotation.y = Math.PI / 2;
+                }
             }
-            if (side === 'left') {
-                glass.position.set(-2.13, -2, -1.55);
-                glass.rotation.y = -Math.PI / 2;
-            }
-            if (side === 'right') {
-                glass.position.set(2.13, -2, -1.55);
-                glass.rotation.y = Math.PI / 2;
-            }
+            
         } else if (selectedSize === "10'x10'") {
-            if (side === 'front') glass.position.set(0, -2, -0.03);
-            if (side === 'rear') {
-                glass.position.set(0, -2, -3.09);
-                glass.rotation.y = -Math.PI; 
+            if (selection==='Wall-mounted'){
+                if (side === 'front') glass.position.set(0, -2, -1.2); // -0.03 - 1.17 = -1.2
+                if (side === 'rear') {
+                    glass.position.set(0, -2, -4.26); // -3.09 - 1.17 = -4.26
+                    glass.rotation.y = -Math.PI; 
+                }
+                if (side === 'left') {
+                    glass.position.set(-1.52, -2, -2.72); // -1.55 - 1.17 = -2.72
+                    glass.rotation.y = -Math.PI / 2;
+                }
+                if (side === 'right') {
+                    glass.position.set(1.52, -2, -2.72); // -1.55 - 1.17 = -2.72
+                    glass.rotation.y = Math.PI / 2;
+                }
+                
+            else {
+                if (side === 'front') glass.position.set(0, -2, -0.03);
+                if (side === 'rear') {
+                    glass.position.set(0, -2, -3.09);
+                    glass.rotation.y = -Math.PI; 
+                }
+                if (side === 'left') {
+                    glass.position.set(-1.52, -2, -1.55);
+                    glass.rotation.y = -Math.PI / 2;
+                }
+                if (side === 'right') {
+                    glass.position.set(1.52, -2, -1.55);
+                    glass.rotation.y = Math.PI / 2;
+                }
             }
-            if (side === 'left') {
-                glass.position.set(-1.52, -2, -1.55);
-                glass.rotation.y = -Math.PI / 2;
-            }
-            if (side === 'right') {
-                glass.position.set(1.52, -2, -1.55);
-                glass.rotation.y = Math.PI / 2;
+            
             }
         }
     }
